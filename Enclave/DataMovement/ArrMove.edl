@@ -1,0 +1,18 @@
+enclave{
+
+
+	trusted{
+		public void ecall_store_int(int input);
+		public void ecall_store_int_arr([in, count = len]int* input, size_t len);
+		public void ecall_mult_int(int multBy);
+		
+		public void ecall_load_int_arr([out, count = numElems]int* outPtr, size_t numElems);
+	};
+
+
+
+
+
+
+
+};

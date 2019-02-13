@@ -1,0 +1,11 @@
+enclave {
+
+	trusted {
+		public int ecall_multiply(int a, int b);
+	
+	
+	};
+
+
+
+};
