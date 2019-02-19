@@ -138,6 +138,12 @@ Enclave_Name := enclave.so
 Signed_Enclave_Name := enclave.signed.so
 Enclave_Config_File := Enclave/Enclave.config.xml
 
+
+#####EDL Settings######
+EDL_FILES := $(shell find . -name '*.edl')
+
+
+
 ifeq ($(SGX_MODE), HW)
 ifneq ($(SGX_DEBUG), 1)
 ifneq ($(SGX_PRERELEASE), 1)
@@ -169,7 +175,7 @@ endif
 
 ######## App Objects ########
 
-App/Enclave_u.c: $(SGX_EDGER8R) Enclave/Enclave.edl
+App/Enclave_u.c: $(SGX_EDGER8R) $(EDL_FILES)
 	@cd App && $(SGX_EDGER8R) --untrusted ../Enclave/Enclave.edl --search-path ../Enclave --search-path $(SGX_SDK)/include
 	@echo "GEN  =>  $@"
 
@@ -188,7 +194,7 @@ $(App_Name): App/Enclave_u.o $(App_Cpp_Objects)
 
 ######## Enclave Objects ########
 
-Enclave/Enclave_t.c: $(SGX_EDGER8R) Enclave/Enclave.edl
+Enclave/Enclave_t.c: $(SGX_EDGER8R) $(EDL_FILES)
 	@cd Enclave && $(SGX_EDGER8R) --trusted ../Enclave/Enclave.edl --search-path ../Enclave --search-path $(SGX_SDK)/include
 	@echo "GEN  =>  $@"
 
