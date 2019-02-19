@@ -3,11 +3,14 @@
 #include "Enclave_u.h"
 #include "sgx_urts.h"
 #include "sgx_utils/sgx_utils.h"
+//#include "../Include/vars.cpp"
 
 /* Global EID shared by multiple threads */
 sgx_enclave_id_t global_eid = 0;
 
 int pull[20] = {1,2,3,4,5,6,7,8,9,0,9,8,7,6,5,4,3,2,1,0};
+
+int num;
 
 // OCall implementations
 void ocall_print(const char* str) {
@@ -106,7 +109,7 @@ int main(int argc, char const *argv[]) {
 	//#####################################################
 	//Let's try to copy some array's into the enclave and 
 	// then do some generic operations on them through ocalls
-
+/*
 	//make int array
 	
 	int data[20];
@@ -148,7 +151,55 @@ int main(int argc, char const *argv[]) {
 		printf("outHold has %d\n", outHold[i]);
 	
 	}
+*/	
+	//#####################################################
+    // interact with external var
 	
+	int* numPTR = &num;
+
+	*numPTR = 5;
+		
+	printf("%d\n", *numPTR);
+	printf("%d\n", num);
+	status = enclave_main(global_eid, &retval, &num);
+	if(status != SGX_SUCCESS){
+		return 1;
+	}
+	printf("%d\n", *numPTR);
+    
+    num = 65;
+    printf("%d\n", num);
+    status = enclave_main(global_eid, &retval, &num);
+	if(status != SGX_SUCCESS){
+		return 1;
+	}
+    
+    printf("%d\n", *numPTR);
+    
+    
+    
+    //make an int array
+    int data[20];
+	size_t size = 20;
+	int i;
+	for(i = 0; i < size; ++i){
+		data[i] = i;
+		printf("%d\n", data[i]);
+	}
+	
+	
+	status = ecall_array_add_no_copy(global_eid, &retval, data, size, 6);
+    if(status != SGX_SUCCESS){
+		return 1;
+	}
+    
+    
+	for(i=0; i<size; ++i){
+		printf("%d\n", data[i]);
+	
+	}
+    //#####################################################
+
 	//#####################################################
     // Destroy enclave
     status = sgx_destroy_enclave(global_eid);

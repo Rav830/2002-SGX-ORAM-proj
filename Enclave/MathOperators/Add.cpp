@@ -28,3 +28,24 @@ int ecall_add(int a, int b) {
 	
     return a + b;
 }
+
+
+/*
+ * @brief      This will add an int to each value in side of an array and then assign that each value  
+ *
+ * @param      arrPtr  The Pointer to the array we want to add to
+ * @param      arrLen  Then length of the array
+ * @param      addVal  The value to add to each element
+ *
+ * @return     Truthy if addition successful, falsy otherwise.
+ */
+int ecall_array_add_no_copy(int *arrPtr, size_t arrLen, int addVal){
+
+	int i;
+	for(i =0; i< arrLen; ++i){
+		*(arrPtr + i) = *(arrPtr + i) + addVal;
+	}
+
+	return 1;
+
+}

@@ -77,7 +77,7 @@ endif
 # files to compile
 App_Cpp_Files := App/App.cpp App/sgx_utils/sgx_utils.cpp
 # App_Include_Paths := -IInclude -IApp -I$(SGX_SDK)/include
-App_Include_Paths := -IApp -I$(SGX_SDK)/include
+App_Include_Paths := -IApp -I$(SGX_SDK)/include -IInclude
 
 App_C_Flags := $(SGX_COMMON_CFLAGS) -fPIC -Wno-attributes $(App_Include_Paths)
 
@@ -120,7 +120,7 @@ Crypto_Library_Name := sgx_tcrypto
 # Enclave_Cpp_Files := Enclave/Enclave.cpp $(wildcard Enclave/Edger8rSyntax/*.cpp) $(wildcard Enclave/TrustedLibrary/*.cpp)
 Enclave_Cpp_Files := Enclave/Enclave.cpp Enclave/Sealing/Sealing.cpp $(wildcard Enclave/MathOperators/*.cpp) Enclave/DataMovement/ArrMove.cpp
 # Enclave_Include_Paths := -IInclude -IEnclave -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport
-Enclave_Include_Paths := -IEnclave -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport
+Enclave_Include_Paths := -IEnclave -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport -IInclude
 
 Enclave_C_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fstack-protector $(Enclave_Include_Paths)
 Enclave_Cpp_Flags := $(Enclave_C_Flags) -std=c++03 -nostdinc++
