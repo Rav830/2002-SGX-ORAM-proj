@@ -1,6 +1,5 @@
 enclave {
 	
-	include "vars.h"
 	
     from "Sealing/Sealing.edl" import *;
 	from "MathOperators/MathOperators.edl" import *;
@@ -11,6 +10,7 @@ enclave {
         /* define ECALLs here. */
         public int generate_random_number(void);
         public int enclave_main([user_check] int* ptr);
+
     };
 
     untrusted {

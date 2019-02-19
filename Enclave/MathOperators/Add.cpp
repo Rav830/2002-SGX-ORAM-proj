@@ -39,6 +39,7 @@ int ecall_add(int a, int b) {
  *
  * @return     Truthy if addition successful, falsy otherwise.
  */
+
 int ecall_array_add_no_copy(int *arrPtr, size_t arrLen, int addVal){
 
 	int i;

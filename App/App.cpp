@@ -3,7 +3,7 @@
 #include "Enclave_u.h"
 #include "sgx_urts.h"
 #include "sgx_utils/sgx_utils.h"
-//#include "../Include/vars.cpp"
+
 
 /* Global EID shared by multiple threads */
 sgx_enclave_id_t global_eid = 0;
@@ -198,6 +198,7 @@ int main(int argc, char const *argv[]) {
 		printf("%d\n", data[i]);
 	
 	}
+	
     //#####################################################
 
 	//#####################################################

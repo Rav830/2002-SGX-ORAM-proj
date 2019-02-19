@@ -13,7 +13,7 @@ enclave {
     	 * @return     Truthy if addition successful, falsy otherwise.
     	 */
         public int ecall_add(int a, int b);
-		public int ecall_array_add_no_copy([user_check, count=arrLen] int *arrPtr, size_t arrLen, int addVal);
+		public int ecall_array_add_no_copy([user_check] int* arrPtr, size_t arrLen, int addVal);
 	
 	};
 	
