@@ -46,6 +46,7 @@ int main(int argc, char const *argv[]) {
     
     Product* p = createProduct(id, name);
     
+    setGlobalID(global_eid);
     
     printProd(p);
     
@@ -60,6 +61,25 @@ int main(int argc, char const *argv[]) {
     for(i =0; i< 20; ++i){
     	printCust(c_arr[i]);
     }
+
+
+	printf("let's try an unseal\n");
+	char* sealed = p_arr[0]->name;
+	char* unsealedc;
+	sgx_status_t ecall_status;
+
+
+	
+    status = unseal(global_eid, &ecall_status,
+            (sgx_sealed_data_t*)sealed, sizeof(sgx_sealed_data_t) + sizeof(sealed),
+            (uint8_t*)&unsealedc, sizeof(unsealedc));
+
+    if (!is_ecall_successful(status, "Unsealing failed :(", ecall_status)) {
+        return 1;
+    }
+
+	
+	printf("some data \nsealed_size: %lu \nsealed_data: %s \nunsealed_size: %lu \nunsealed_data: %s\n", sizeof(sgx_sealed_data_t) + sizeof(sealed), sealed, sizeof(unsealedc), unsealedc);
 
 	//#####################################################
     // Destroy enclave

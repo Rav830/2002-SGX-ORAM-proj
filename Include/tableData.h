@@ -1,3 +1,4 @@
+#include "sgx_urts.h"
 
 #ifndef TABLEDATA_H
 #define TABLEDATA_H
@@ -14,6 +15,11 @@ typedef struct{
 
 } Product;
 
+void setGlobalID(sgx_enclave_id_t input);
+
+
+Product* createProduct(char* id, char* name, int useEncrypt);
+Customer* createCustomer(char* id, char* name, int useEncrypt);
 Product* createProduct(char* id, char* name);
 Customer* createCustomer(char* id, char* name);
 void printProd(Product* s);
