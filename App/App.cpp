@@ -3,6 +3,7 @@
 #include "Enclave_u.h"
 #include "sgx_urts.h"
 #include "sgx_utils/sgx_utils.h"
+#include "../Include/tableData.h"
 
 
 /* Global EID shared by multiple threads */
@@ -37,6 +38,40 @@ int main(int argc, char const *argv[]) {
         std::cout << "Fail to initialize enclave." << std::endl;
         return 1;
     }
+    
+    sgx_status_t status;
+    
+    char id[] = "1";
+    char name[] = "prodName";
+    
+    Product* p = createProduct(id, name);
+    
+    
+    printProd(p);
+    
+    
+    Product** p_arr = genProducts(20);
+    int i;
+    for(i =0; i< 20; ++i){
+    	printProd(p_arr[i]);
+    }
+ 	printf("==========\n");
+ 	Customer** c_arr = genCustomers(50);
+    for(i =0; i< 20; ++i){
+    	printCust(c_arr[i]);
+    }
+
+	//#####################################################
+    // Destroy enclave
+    status = sgx_destroy_enclave(global_eid);
+    if(status != SGX_SUCCESS) {
+        std::cout <<  "Fail to destroy enclave.\n" << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+    /*
     //#####################################################
     //Random number generation 
     int ptr;
@@ -109,7 +144,7 @@ int main(int argc, char const *argv[]) {
 	//#####################################################
 	//Let's try to copy some array's into the enclave and 
 	// then do some generic operations on them through ocalls
-/*
+
 	//make int array
 	
 	int data[20];
@@ -151,7 +186,7 @@ int main(int argc, char const *argv[]) {
 		printf("outHold has %d\n", outHold[i]);
 	
 	}
-*/	
+	
 	//#####################################################
     // interact with external var
 	
@@ -201,13 +236,7 @@ int main(int argc, char const *argv[]) {
 	
     //#####################################################
 
-	//#####################################################
-    // Destroy enclave
-    status = sgx_destroy_enclave(global_eid);
-    if(status != SGX_SUCCESS) {
-        std::cout <<  "Fail to destroy enclave.\n" << std::endl;
-        return 1;
-    }
-
-    return 0;
-}
+	status = enclave_fill_mem(global_eid);
+    if(status != SGX_SUCCESS){
+		return 1;
+	}*/
