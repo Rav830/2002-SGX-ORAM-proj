@@ -26,7 +26,7 @@ int ocall_add(int a, int b){
 }
 
 void ocall_print_int(int a){
-	printf("The enclave said to print the following int: %d\n", a);
+	printf("o_p_i: %d\n", a);
 }
 
 /*int[] ocall_get_arr(){
@@ -97,6 +97,15 @@ int main(int argc, char const *argv[]) {
     }
     
     NLJ(p_arr, 50, c_arr, 5);
+    
+    
+    int retval;
+    
+    status = ecall_nlj(global_eid, &retval, p_arr, c_arr, 50, 5);
+    if(status != SGX_SUCCESS) {
+        std::cout <<  "Failed to join.\n" << std::endl;
+        return 1;
+    }
     
 
 
