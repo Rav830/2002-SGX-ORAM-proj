@@ -4,6 +4,7 @@
 #include "sgx_urts.h"
 #include "sgx_utils/sgx_utils.h"
 #include "../Include/tableData.h"
+#include "Join/appJoin.cpp"
 
 
 /* Global EID shared by multiple threads */
@@ -42,7 +43,7 @@ int main(int argc, char const *argv[]) {
     
     sgx_status_t status;
     
-    char id[] = "1";
+    int id = 1;
     char name[] = "prodName";
     
     Product* p = createProduct(id, name, 0);
@@ -53,12 +54,7 @@ int main(int argc, char const *argv[]) {
     
     ecall_read_product(global_eid, p); 
     
-   
-   	 
-    Product** p_arr = genProducts(20);
-    int i;
-    Customer** c_arr = genCustomers(50);
-    
+    /*
     Block* root = (Block*)malloc(sizeof(Block));
     root->id = 5;
     root->content = "root";
@@ -84,41 +80,28 @@ int main(int argc, char const *argv[]) {
     printf("%d %s\n", root->left->id, root->left->content);
     
     //ecall_print_block(global_eid, root);
+    */
+    
+
+    int i;    
+    Product** p_arr = genProducts(50);
+    Customer** c_arr = genCustomers(5);
+    
     
     for(i =0; i< 20; ++i){
     	printProd(p_arr[i]);
     }
  	printf("==========\n");
-    for(i =0; i< 50; ++i){
+    for(i =0; i < 5 ; ++i){
     	printCust(c_arr[i]);
     }
     
-
-
-	printf("let's try an unseal\n");
-	char* sealed = p_arr[0]->name;
-	char* unsealedc;
-	sgx_status_t ecall_status;
+    NLJ(p_arr, 50, c_arr, 5);
+    
 
 
 	
-    status = unseal(global_eid, &ecall_status,
-            (sgx_sealed_data_t*)sealed, sizeof(sgx_sealed_data_t) + sizeof(sealed),
-            (uint8_t*)&unsealedc, sizeof(unsealedc));
-
-    if (!is_ecall_successful(status, "Unsealing failed :(", ecall_status)) {
-        return 1;
-    }
-
 	
-	printf("some data \nsealed_size: %lu \nsealed_data: %s \nunsealed_size: %lu \nunsealed_data: %s\n", sizeof(sgx_sealed_data_t) + sizeof(sealed), sealed, sizeof(unsealedc), unsealedc);
-
-	int retval;
-	status = ecall_nlj_cartesian(global_eid, &retval, p_arr, c_arr, 20, 50);
-    if (status != SGX_SUCCESS) {
-        std::cout << "Join Failing" << std::endl;
-        return 1;
-    }
 	//#####################################################
     // Destroy enclave
     status = sgx_destroy_enclave(global_eid);

@@ -4,14 +4,13 @@
 #define TABLEDATA_H
 
 typedef struct{
+	int id;
 	char *name;
-	char *id;
-
 } Customer;
 
 typedef struct{
+	int id;
 	char *name;
-	char *id;
 
 } Product;
 
@@ -29,8 +28,8 @@ struct Block{
 void setGlobalID(sgx_enclave_id_t input);
 
 
-Product* createProduct(char* id, char* name, int useEncrypt);
-Customer* createCustomer(char* id, char* name, int useEncrypt);
+Product* createProduct(int id, char* name, int useEncrypt);
+Customer* createCustomer(int id, char* name, int useEncrypt);
 //Product* createProduct(char* id, char* name);
 //Customer* createCustomer(char* id, char* name);
 void printProd(Product* s);
@@ -39,7 +38,7 @@ void printCust(Customer* s);
 Product** genProducts(int numProds);
 Customer** genCustomers(int numCusts);
 
-char* gimmeID(void);
+int gimmeID(void);
 char* gimmeProd(void);
 char* gimmeName(void);
 
