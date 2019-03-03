@@ -1,0 +1,11 @@
+enclave {
+
+	// ECALLs
+    trusted {
+
+        public int ecall_nlj_cartesian([user_check]Product** tblA, [user_check]Customer** tblB, int numProds, int numCusts);
+        public void ecall_read_product([user_check] Product* a);
+
+    };
+
+};

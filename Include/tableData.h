@@ -15,13 +15,24 @@ typedef struct{
 
 } Product;
 
+typedef struct Block Block;
+
+struct Block{
+	int id;
+	char* content;
+	Block* left;
+	Block* right;
+
+};
+
+
 void setGlobalID(sgx_enclave_id_t input);
 
 
 Product* createProduct(char* id, char* name, int useEncrypt);
 Customer* createCustomer(char* id, char* name, int useEncrypt);
-Product* createProduct(char* id, char* name);
-Customer* createCustomer(char* id, char* name);
+//Product* createProduct(char* id, char* name);
+//Customer* createCustomer(char* id, char* name);
 void printProd(Product* s);
 void printCust(Customer* s);
 

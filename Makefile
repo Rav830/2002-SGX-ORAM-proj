@@ -34,6 +34,7 @@
 SGX_SDK ?= /opt/intel/sgxsdk
 SGX_MODE ?= SIM
 SGX_ARCH ?= x64
+SGX_DEBUG := 1
 
 ifeq ($(shell getconf LONG_BIT), 32)
 	SGX_ARCH := x86
@@ -118,7 +119,7 @@ endif
 Crypto_Library_Name := sgx_tcrypto
 
 # Enclave_Cpp_Files := Enclave/Enclave.cpp $(wildcard Enclave/Edger8rSyntax/*.cpp) $(wildcard Enclave/TrustedLibrary/*.cpp)
-Enclave_Cpp_Files := Enclave/Enclave.cpp Enclave/Sealing/Sealing.cpp $(wildcard Enclave/MathOperators/*.cpp) Enclave/DataMovement/ArrMove.cpp
+Enclave_Cpp_Files := Enclave/Enclave.cpp Enclave/Sealing/Sealing.cpp $(wildcard Enclave/MathOperators/*.cpp) Enclave/DataMovement/ArrMove.cpp Enclave/Joins/Join.cpp
 # Enclave_Include_Paths := -IInclude -IEnclave -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport
 Enclave_Include_Paths := -IEnclave -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport -IInclude
 

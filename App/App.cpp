@@ -16,6 +16,7 @@ int num;
 // OCall implementations
 void ocall_print(const char* str) {
     printf("%s\n", str);
+    fflush(stdout);
 }
 
 int ocall_add(int a, int b){
@@ -44,23 +45,54 @@ int main(int argc, char const *argv[]) {
     char id[] = "1";
     char name[] = "prodName";
     
-    Product* p = createProduct(id, name);
+    Product* p = createProduct(id, name, 0);
     
     setGlobalID(global_eid);
     
     printProd(p);
     
+    ecall_read_product(global_eid, p); 
     
+   
+   	 
     Product** p_arr = genProducts(20);
     int i;
+    Customer** c_arr = genCustomers(50);
+    
+    Block* root = (Block*)malloc(sizeof(Block));
+    root->id = 5;
+    root->content = "root";
+    
+    Block* left = (Block*)malloc(sizeof(Block));
+    left->id = 6;
+    left->content = "adaf";
+    
+    Block* right = (Block*)malloc(sizeof(Block));
+    right->id = 7;
+    right->content = "adfa";
+    
+    root->left = left;
+    root->right = right;
+    
+    Block* leftleft = (Block*)malloc(sizeof(Block));
+    leftleft->id = 8;
+    leftleft->content = "leftleft";
+    
+    root->left->left = leftleft;
+    
+    printf("%d %s\n", root->id, root->content);
+    printf("%d %s\n", root->left->id, root->left->content);
+    
+    //ecall_print_block(global_eid, root);
+    
     for(i =0; i< 20; ++i){
     	printProd(p_arr[i]);
     }
  	printf("==========\n");
- 	Customer** c_arr = genCustomers(50);
-    for(i =0; i< 20; ++i){
+    for(i =0; i< 50; ++i){
     	printCust(c_arr[i]);
     }
+    
 
 
 	printf("let's try an unseal\n");
@@ -81,6 +113,12 @@ int main(int argc, char const *argv[]) {
 	
 	printf("some data \nsealed_size: %lu \nsealed_data: %s \nunsealed_size: %lu \nunsealed_data: %s\n", sizeof(sgx_sealed_data_t) + sizeof(sealed), sealed, sizeof(unsealedc), unsealedc);
 
+	int retval;
+	status = ecall_nlj_cartesian(global_eid, &retval, p_arr, c_arr, 20, 50);
+    if (status != SGX_SUCCESS) {
+        std::cout << "Join Failing" << std::endl;
+        return 1;
+    }
 	//#####################################################
     // Destroy enclave
     status = sgx_destroy_enclave(global_eid);
