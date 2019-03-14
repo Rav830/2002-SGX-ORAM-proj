@@ -1,2 +1,3 @@
 #define MAX_BLOCK_SIZE 20
 #define MAX_BUCKET_SIZE 3
+#define INIT_STORAGE_SIZE 10

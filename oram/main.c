@@ -1,17 +1,12 @@
 #include "config.h"
 #include "block.h"
 #include "bucket.h"
+#include "storage.h"
 
 #include <stdio.h>
 
+void testcode(){
 
-
-int main(){
-
-	
-
-	printf("compile\n");
-	
 	char d[MAX_BLOCK_SIZE];
 	
 	int i;
@@ -22,7 +17,7 @@ int main(){
 	d[MAX_BLOCK_SIZE-1] = '\0';
 	
 	
-	Block b = create_block(1, d);
+	Block b = create_block(5, d);
 	
 	
 	
@@ -34,9 +29,30 @@ int main(){
 	
 	
 	Bucket dumdum = create_dummy_bucket();
-	
 	print_bucket(dumdum);
+
+	printf("Testing place block\n");
+	int retval = place_block(b, &dumdum);
+	printf("place_block status %d\n", retval);
+	print_bucket(dumdum);
+
+	Storage test = create_storage();
+	
+	print_storage(test);
+
+
+}
+
+int main(){
+
+	
+
+	printf("compile\n");
+	
+	testcode();
 	
 	
 	return 1;
 }
+
+

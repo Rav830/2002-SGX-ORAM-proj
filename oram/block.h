@@ -8,7 +8,7 @@
 //a block is an array of data with a max size from the config
 
 //data is the content of the block
-//bid is the block id
+//bid is the block id and helps indicate where it is in the binary tree
 // 
 typedef struct{
 	int bid;

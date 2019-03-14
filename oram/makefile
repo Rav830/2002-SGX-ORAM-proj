@@ -1,6 +1,6 @@
-OBJS	= main.o block.o bucket.o
-SOURCE	= main.c block.c bucket.c
-HEADER	= block.h config.h bucket.h
+OBJS	= main.o block.o bucket.o storage.o
+SOURCE	= main.c block.c bucket.c storage.c
+HEADER	= block.h config.h bucket.h storage.h
 OUT	= main
 CC	 = gcc
 FLAGS	 = -g -c -Wall
@@ -17,6 +17,9 @@ block.o: block.c
 
 bucket.o: bucket.c
 	$(CC) $(FLAGS) bucket.c 
+
+storage.o: storage.c
+	$(CC) $(FLAGS) storage.c 
 
 
 clean:

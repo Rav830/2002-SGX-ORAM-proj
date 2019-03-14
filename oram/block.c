@@ -26,7 +26,7 @@ Block create_dummy_block(){
 	
 	int i;
 	for (i=0; i< MAX_BLOCK_SIZE; ++i){
-		retval.data[i] = '1';
+		retval.data[i] =(char) ' ' + ((int)rand()%(126-33));
 	
 	}
 	retval.data[MAX_BLOCK_SIZE-1] = '\0';
