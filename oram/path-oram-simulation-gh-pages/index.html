@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Path ORAM simulation</title>
+  <style type="text/css">
+    canvas {
+        border: 3px #cccccc solid;
+    }
+    #textcontainer {
+      font-family: Sans-Serif;
+      width: 800px;
+      margin-right: auto;
+    }
+    h1, h2, h3 {
+      font-weight: normal;
+      background-color: #fdfdfd;
+    }
+  </style>
+</head>
+ 
+<body>
+  <div id="textcontainer">
+    <h1>Path ORAM simulation</h1>
+
+    <p>Path ORAM (<a href="https://eprint.iacr.org/2013/280">eprint</a>, 
+    <a href="https://dl.acm.org/citation.cfm?id=2516660">ACM DL</a>) 
+    is an "extremely simple oblivious RAM protocol" by Stefanov et al., 
+    presented at CCS '13.
+    In path ORAM, the client (data owner) stores a <b>position map</b> and 
+    a <b>stash</b>, while the server stores a binary <b>tree</b> where each node is 
+    a bucket of blocks.</p>
+
+    <p>The purpose of this simulation is to visualize how data moves in the 
+    tree as blocks are accessed (read or written).</p>
+
+    <p>In a real implementation of path ORAM, all stored blocks are 
+      probabilistically encrypted. 
+      In this simulation, the hex strings in the tree represent this encrypted 
+      data.
+      The colours correspond to the underlying block: real blocks are coloured 
+      and dummy blocks are grey. </p>
+
+    <h3>1. Pick how many blocks to store (1&ndash;64) and how many blocks there 
+    are per bucket (1&ndash;5).</h3>
+    
+    <!-- "return false" is necessary to prevent page refresh -->
+    <form onsubmit="updateORAM(); return false">
+      <label for="numBlocks">Total number of data blocks to store (N):</label>
+      <input id="numBlocks" type="number" min="1" max="64" value="8" />
+      <br /><br />
+      <label for="blocksPerTreeBucket">Number of data blocks per bucket (Z):
+        </label>
+      <input id="blocksPerTreeBucket" type="number" min="1" max="5" value="4" />
+      <input id="goButton" type="submit" value="Go!" />
+    </form>
+
+    <p>The number of levels of the tree is &lceil;log N&rceil;.
+    The greater the number of blocks per bucket, the lower the probability 
+    that buckets overflow (and hence the lower the probability that the 
+    stash isn't empty after a block access).
+    The authors of path ORAM proved bounds on stash usage for <i>Z</i> = 5, 
+    but they observed that <i>Z</i> = 4 worked fine in practice. </p>
+
+    <h3>2. Click on a block ID in the position map to access that block.</h3>
+
+    <p>You won't see the transient use of the stash&mdash;although all blocks 
+    in the path from the root to the block's assigned leaf are momentarily 
+    placed in the stash, this happens too fast.</p>
+
+    <p>The block you access should end up in the root node with probability 
+    1/2.</p>
+
+  </div>
+
+  <svg id="oram" version="1.1" xmlns="http://www.w3.org/2000/svg" 
+       class="svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <style type="text/css">
+      @import url(svg-oram.css);
+      @import url(svg-datablock-colors.css); /* must be second */
+    </style>
+
+    <rect id="svgbackground" class="background" width="100%" height="100%" />
+    <rect id="clientbackground" class="client background" rx="5" ry="5" />
+    <rect id="serverbackground" class="server background" rx="5" ry="5" />
+    
+    <!-- grouping nodes make it easy to redraw the picture
+    by removing all of a group's children nodes -->
+    <g id="oramcontainer" />
+    <g id="stashcontainer" />
+  </svg>
+
+  <script type="text/javascript" src="jquery-1.12.1.min.js"></script>
+  <script type="text/javascript" src="oram.js"></script>
+
+</body>
+</html>
