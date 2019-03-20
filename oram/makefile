@@ -9,16 +9,16 @@ LFLAGS	 =
 all: $(OBJS)
 	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
 
-main.o: main.c
+main.o: main.c config.h
 	$(CC) $(FLAGS) main.c 
 
-block.o: block.c
+block.o: block.c config.h
 	$(CC) $(FLAGS) block.c 
 
-bucket.o: bucket.c
+bucket.o: bucket.c config.h
 	$(CC) $(FLAGS) bucket.c 
 
-storage.o: storage.c
+storage.o: storage.c config.h
 	$(CC) $(FLAGS) storage.c 
 
 

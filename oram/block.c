@@ -1,6 +1,7 @@
 #include "block.h"
 #include "config.h"
 
+int cnt = 0;
 
 Block create_block(int bid, char data[]){
 
@@ -26,8 +27,8 @@ Block create_dummy_block(){
 	
 	int i;
 	for (i=0; i< MAX_BLOCK_SIZE; ++i){
-		retval.data[i] =(char) ' ' + ((int)rand()%(126-33));
-	
+		retval.data[i] =(char) ' ' + ((int)cnt%(126-33));
+		cnt+=1;
 	}
 	retval.data[MAX_BLOCK_SIZE-1] = '\0';
 	
