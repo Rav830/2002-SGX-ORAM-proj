@@ -2,9 +2,11 @@
 #include "block.h"
 #include "bucket.h"
 #include "storage.h"
+#include "data.h"
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 Block stash[20];
 int stashIDX = 0;
@@ -343,13 +345,62 @@ void testcode(){
 
 }
 
+void testFileIO(){
+	Customer custs[10];
+	readCust("../dataGen/customer.csv", 10, custs);
+	Order orders[200];
+	readOrder("../dataGen/order.csv", 200, orders);
+	
+	int i;
+	for(i=0; i<10; i++){
+		printf("%s\n", custToStr(custs[i])); 
+	}
+	
+
+	
+
+	for(i=0; i<200; i++){
+		printf("%s\n", orderToStr(orders[i])); 
+	}
+	
+	printf("serializing\n");
+
+	uint8_t* serializedCust = serialize(&custs[0], NULL, 1);
+	for(i=0; i<64; i++){
+		printf("%c", serializedCust[i]);
+	}
+
+	printf("\n");
+	
+	uint8_t* serializedOrd = serialize(NULL, &orders[0], 0);
+	for(i=0; i<64; i++){
+		printf("%d", serializedOrd[i]);
+	}
+	printf("\n");
+	printf("deserializing\n");
+	
+	Customer out;
+	deserialize(serializedCust, &out, NULL, 1);
+	printf("%s\n", custToStr(out));
+
+	Order outo;
+	deserialize(serializedOrd, NULL, &outo, 0);
+	printf("%s\n", orderToStr(outo));
+
+}
+
 int main(){
 
 	
 
 	printf("compile\n");
 	
-	testcode();
+	testFileIO();
+
+	
+	
+	
+	//testcode();
 	
 	
 	return 1;

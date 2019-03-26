@@ -1,6 +1,6 @@
-OBJS	= main.o block.o bucket.o storage.o
-SOURCE	= main.c block.c bucket.c storage.c
-HEADER	= block.h config.h bucket.h storage.h
+OBJS	= main.o block.o bucket.o storage.o data.o
+SOURCE	= main.c block.c bucket.c storage.c data.c
+HEADER	= block.h config.h bucket.h storage.h data.h
 OUT	= main
 CC	 = gcc
 FLAGS	 = -g -c -Wall
@@ -21,7 +21,11 @@ bucket.o: bucket.c config.h
 storage.o: storage.c config.h
 	$(CC) $(FLAGS) storage.c 
 
+data.o: data.c data.h config.h
+	$(CC) $(FLAGS) data.c 
 
 clean:
 	rm -f -v $(OBJS) $(OUT)
 
+
+#made using http://solver.assistedcoding.eu/makefilegen
