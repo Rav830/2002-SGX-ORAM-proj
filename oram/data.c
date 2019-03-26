@@ -113,5 +113,15 @@ void deserialize(uint8_t* cereal, Customer* c, Order* o, int isCust){
 	free(line);
 	//free(end);
 }
+unsigned long hash(unsigned char *str)
+{
+    unsigned long hash = 5381;
+    int c;
+
+    while (c = *str++)
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+    return hash;
+}
 
 
