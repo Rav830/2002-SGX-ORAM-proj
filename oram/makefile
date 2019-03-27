@@ -4,7 +4,7 @@ HEADER	= block.h config.h bucket.h storage.h data.h
 OUT	= main
 CC	 = gcc
 FLAGS	 = -g -c -Wall
-LFLAGS	 = 
+LFLAGS	 = -lm
 
 all: $(OBJS)
 	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)

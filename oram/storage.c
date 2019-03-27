@@ -1,15 +1,19 @@
 #include "storage.h"
 #include "bucket.h"
 #include "block.h"
+#include <math.h>
 #include <stdio.h>
+
 
 Storage create_storage(){
 	
 	Storage retval;
-	retval.numBuckets = INIT_STORAGE_SIZE;
+	retval.leaves = INIT_STORAGE_ELEMS;
+	retval.height = log(retval.leaves)/log(2)+1;
+	retval.numBuckets = (int)(pow(2, retval.height)-1);
 	
 	int i;
-	for(i=0; i<INIT_STORAGE_SIZE; ++i){
+	for(i=0; i<retval.numBuckets; ++i){
 		
 		retval.allBuckets[i] = create_dummy_bucket();	
 	
@@ -23,7 +27,7 @@ Storage create_storage(){
 void print_storage(Storage toPrint){
 	
 	int i;
-	for(i=0; i<INIT_STORAGE_SIZE; ++i){
+	for(i=0; i<toPrint.numBuckets; ++i){
 		printf("Bucket %d:\n", i);
 		print_bucket(toPrint.allBuckets[i]);
 	
@@ -45,20 +49,32 @@ int numLeaves(int numBuckets){
 
 //This read will logically evict and remove the data from the tree structure.
 //When a write back occurs that data will be replaced
-void get_buckets(Storage collectFrom, int index, Bucket* retval){
+void get_buckets(Storage* collectFrom, int index, Bucket* retval){
 	
 	//static Bucket retval[3];
 	
 	//let's make sure that the index given is correct
-	int numEntries = collectFrom.numBuckets - ((int)(collectFrom.numBuckets-1) * (1/3));
 	
-	if(index >= numEntries){
+	if(index >= collectFrom->leaves){
 		printf("I received a index that is greater than the number of entries in this tree\n");
 		return -1;
 	}
 	
 	//Collect the elements into the retval
-	retval[0] = collectFrom.allBuckets[0];
+	int i = collectFrom->height-1;
+	int treeIdx = collectFrom->numBuckets - collectFrom->leaves + index;
+	while (treeIdx > -1 && i > -1){
+		retval[i] = collectFrom->allBuckets[treeIdx];
+		
+		//go up the tree to the parent
+		treeIdx = ((treeIdx+1)>>1)-1;
+		i--;
+	}
+	
+	
+	
+	
+	/*retval[0] = collectFrom.allBuckets[0];
 	int parentIndex = idxToParentIndex(index);
 	int leafIndex = idxToLeafIndex(index);
 	retval[1] = collectFrom.allBuckets[parentIndex];
@@ -82,14 +98,24 @@ void get_buckets(Storage collectFrom, int index, Bucket* retval){
 //Note Bucket should be ordered from top of path to leaf
 void set_buckets(Storage* toPlace, int index, Bucket* buckets){
 	
-	int parentIndex = idxToParentIndex(index);
+	int i = toPlace->height-1;
+	int treeIdx = toPlace->numBuckets - toPlace->leaves + index;
+	while (treeIdx > -1 && i > -1){
+		toPlace->allBuckets[treeIdx] = buckets[i];
+		
+		//go up the tree to the parent
+		treeIdx = ((treeIdx+1)>>1)-1;
+		i--;
+	}
+	
+	/*int parentIndex = idxToParentIndex(index);
 	int leafIndex = idxToLeafIndex(index);
 	
 	
 	toPlace->allBuckets[0] = buckets[0];
 	toPlace->allBuckets[parentIndex] = buckets[1];
 	toPlace->allBuckets[leafIndex] = buckets[2];
-	
+	*/
 
 }
 
