@@ -15,10 +15,10 @@ main.o: main.c config.h
 block.o: block.c config.h
 	$(CC) $(FLAGS) block.c 
 
-bucket.o: bucket.c config.h
+bucket.o: bucket.c config.h block.o
 	$(CC) $(FLAGS) bucket.c 
 
-storage.o: storage.c config.h
+storage.o: storage.c config.h bucket.o
 	$(CC) $(FLAGS) storage.c 
 
 data.o: data.c data.h config.h

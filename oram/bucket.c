@@ -19,9 +19,17 @@ Bucket create_dummy_bucket(){
 
 void print_bucket(Bucket toPrint){
 	
-	int i;
+	int i, j;
 	for(i=0; i<MAX_BUCKET_SIZE; ++i){
-		printf("Block %d: %d %s\n", i, toPrint.blocks[i].bid, toPrint.blocks[i].data);
+		printf("Block %d:", i);
+		printf("\n\t");
+		printf("%d ", toPrint.blocks[i].data[0]);
+		for(j=1; j<MAX_BLOCK_SIZE; j++){
+			printf("%c", toPrint.blocks[i].data[j]);
+		}
+		printf("\n");
+			
+		
 	}
 
 
@@ -35,9 +43,9 @@ int place_block(Block input, Bucket* placeIn){
 	int i;
 	int retval = -1;
 	for(i=0; i<MAX_BUCKET_SIZE; ++i){
-		if(placeIn->blocks[i].bid == -1){
+		if(placeIn->blocks[i].data[0] >= INIT_STORAGE_ELEMS){
 			placeIn->blocks[i] = input;
-			retval = input.bid;
+			retval = input.data[0];
 			break;
 		}
 	}

@@ -20,7 +20,7 @@ int addBlock(Bucket* barr, Block b){
 	int i, j;
 	for(i=2; i>-1; i--){
 		for(j=0; j<MAX_BUCKET_SIZE; j++){
-			if(barr[i].blocks[j].bid == -1){
+			if(barr[i].blocks[j].data[0] >= INIT_STORAGE_ELEMS){
 				barr[i].blocks[j] = b;
 				return 1;
 			}	
@@ -66,7 +66,7 @@ Block access(Storage* oram, int op, Block* data, int pmID){
 		//for each block in bucket
 		for(j=0; j<MAX_BUCKET_SIZE; j++){
 			//store in stash if it is valid
-			if(path[i].blocks[j].bid > -1){
+			if(path[i].blocks[j].data[0] < INIT_STORAGE_ELEMS){
 				stash[stashIDX] = path[i].blocks[j];
 				stashIDX++;
 			}
@@ -89,7 +89,7 @@ Block access(Storage* oram, int op, Block* data, int pmID){
 	Block retval;
 	if(op == 0){
 		for(i = 0; i<stashIDX; i++){
-			if(stash[i].bid == pmBID[pmID]){
+			if(stash[i].data[0] == pmBID[pmID]){
 				
 				retval = stash[i];
 				data = &(stash[i]);
@@ -100,7 +100,7 @@ Block access(Storage* oram, int op, Block* data, int pmID){
 	if(op == 1){
 		int saved = 0;
 		for(i = 0; i<stashIDX; i++){
-			if(stash[i].bid == pmBID[pmID]){
+			if(stash[i].data[0] == pmBID[pmID]){
 				stash[i] = *(data);
 				saved = 1;
 				
@@ -128,17 +128,17 @@ Block access(Storage* oram, int op, Block* data, int pmID){
 	for(i=0; i<stashIDX; i++){
 		//printf("Stash item %d %s\n",  
 		//get leaf index
-		leafIDX = pmIDX[getpmID(stash[i].bid)];
+		leafIDX = pmIDX[getpmID(stash[i].data[0])];
 		//now we need to determine which bucket it should go in
 		numMatch = intersect_idx(leafIDX, idx, oram->height);
 		for(j = numMatch; j > -1; j--){
 			for(k=0; k < MAX_BUCKET_SIZE; k++){
 				//look for a dummy block to store the values into
-				if(newPath[j].blocks[k].bid < 0){
+				if(newPath[j].blocks[k].data[0] >= INIT_STORAGE_ELEMS){
 					newPath[j].blocks[k] = stash[i];
 					
 					//mark this in the stash that it is dummy
-					stash[i].bid = -1;
+					stash[i].data[0] = (rand()%(255-INIT_STORAGE_ELEMS) )+ INIT_STORAGE_ELEMS ;
 					count++;
 					breakLoop = 1;
 					break;
@@ -229,7 +229,7 @@ Block access(Storage* oram, int op, Block* data, int pmID){
 		//now we clean up the stash so that everything is back in the right spot
 		j=0;//using j for a stashTemp index
 		for (i=0;i<stashIDX; i++){
-			if(stash[i].bid > -1){
+			if(stash[i].data[0] >= INIT_STORAGE_ELEMS){
 				stashTemp[j] = stash[i];
 				j+=1;
 				//stash[i] = create_dummy_block();
@@ -298,20 +298,25 @@ void testcode(){
 	d[MAX_BLOCK_SIZE-1] = '\0';
 	
 	
-	Block b = create_block(5, d);
+	Block b = create_block(5, (uint8_t*)d);
 	
+	for(i=0; i<MAX_BLOCK_SIZE; i++){
+		printf("%d ", b.data[i]);
+	}
+	printf("\n");
 	
-	
-	printf("%d %s\n", b.bid, b.data);
+	//printf("%d %s\n", b.data[0], b.data);
 	
 	Block dummy = create_dummy_block();
-	
-	printf("%d %s\n", dummy.bid, dummy.data);
+	for(i=0; i<MAX_BLOCK_SIZE; i++){
+		printf("%d ", dummy.data[i]);
+	}
+	printf("\n");
 	
 	
 	Bucket dumdum = create_dummy_bucket();
 	print_bucket(dumdum);
-
+	
 	printf("Testing place block\n");
 	int retval = place_block(b, &dumdum);
 	printf("place_block status %d\n", retval);
@@ -319,7 +324,7 @@ void testcode(){
 
 	Storage test = create_storage();
 	
-	//print_storage(test);
+	print_storage(test);
 	
 	Bucket elems[test.height];
 	
@@ -353,12 +358,13 @@ void testcode(){
 	printf("___Buffer Line ___\n\n\n");
 	printf("Make some Blocks to place into our premade storage\n");
 	
-	char text[30];
+	char text[MAX_BLOCK_SIZE];
+	memset(text, 0, MAX_BLOCK_SIZE);
 	strcpy(text, "Hello There");
 	
-	Block one = create_block(1, text);
-	Block two = create_block(2, text);
-	Block three = create_block(3, text);
+	Block one = create_block(1, (uint8_t*)text);
+	Block two = create_block(2, (uint8_t*)text);
+	Block three = create_block(3, (uint8_t*)text);
 	
 	//testing addblock
 	
@@ -368,7 +374,11 @@ void testcode(){
 	//	print_bucket(elems[i]);
 	//}
 	
-	printf("%d %s\n", one.bid, one.data);
+	for(i=0; i<MAX_BLOCK_SIZE; i++){
+		printf("%d ", one.data[i]);
+	}
+	printf("\n");
+	//printf("%d %s\n", one.bid, one.data);
 	//simulate a new block being placed into the storage
 	
 	pmBID[0] = 1;
@@ -387,11 +397,16 @@ void testcode(){
 	Block r;
 	
 	r = access(&test, 0, &r, 1);
-	
-	printf("%d %s\n", r.bid, r.data);
+	printf("success\n");
+	//printf("%d %s\n", r.bid, r.data);
+	for(i=0; i<MAX_BLOCK_SIZE; i++){
+		printf("%d ", r.data[i]);
+	}
+	printf("\n");
 	
 	printf("\n did the location of block 2 change\n");
-	print_storage(test);	
+	//print_storage(test);	
+	
 
 }
 

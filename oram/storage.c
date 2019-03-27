@@ -148,7 +148,7 @@ int place_block_in_storage(Storage* toPlace, Block data, int index){
 		//for each block in that bucket
 		for(j=0; j<MAX_BUCKET_SIZE; j++){
 			//Check if this is a valid location to place the block
-			if( toPlace->allBuckets[ path[i] ].blocks[j].bid == -1){
+			if( toPlace->allBuckets[ path[i] ].blocks[j].data[0] >= INIT_STORAGE_ELEMS){
 				toPlace->allBuckets[ path[i] ].blocks[j] = data;
 				retval = 1;
 				break;
