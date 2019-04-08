@@ -35,6 +35,25 @@ void print_bucket(Bucket toPrint){
 
 }
 
+void print_bucket_no_dummy(Bucket toPrint){
+	
+	int i, j;
+	for(i=0; i<MAX_BUCKET_SIZE; ++i){
+		if(toPrint.blocks[i].data[0] < HASH_RANGE){
+			printf("Block %d:", i);
+			printf("\n\t");
+			printf("%d ", toPrint.blocks[i].data[0]);
+			for(j=1; j<MAX_BLOCK_SIZE; j++){
+				printf("%c", toPrint.blocks[i].data[j]);
+			}
+			printf("\n");
+		}
+		
+	}
+
+
+}
+
 //@param input: the block to try to assign to the bucket placeIn
 //return: -1 for failure (i.e bucket is full of non dummy blocks
 //return: 1 for success
@@ -43,7 +62,7 @@ int place_block(Block input, Bucket* placeIn){
 	int i;
 	int retval = -1;
 	for(i=0; i<MAX_BUCKET_SIZE; ++i){
-		if(placeIn->blocks[i].data[0] >= INIT_STORAGE_ELEMS){
+		if(placeIn->blocks[i].data[0] >= HASH_RANGE){
 			placeIn->blocks[i] = input;
 			retval = input.data[0];
 			break;

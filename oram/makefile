@@ -3,12 +3,11 @@ SOURCE	= main.c block.c bucket.c storage.c data.c
 HEADER	= block.h config.h bucket.h storage.h data.h
 OUT	= main
 CC	 = gcc
-FLAGS	 = -g -c -Wall
+FLAGS	 = -g -c -Wall -Wcomment
 LFLAGS	 = -lm
-
+#lm for the math functions of abs, log ...
 all: $(OBJS)
-	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
-
+	$(CC) -g -fsanitize=address $(OBJS) -o $(OUT) $(LFLAGS)
 main.o: main.c config.h
 	$(CC) $(FLAGS) main.c 
 

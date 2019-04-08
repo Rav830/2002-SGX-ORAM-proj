@@ -24,5 +24,23 @@ int idxToParentIndex(int index);
 int idxToLeafIndex(int index);
 int numLeaves(int numBuckets);
 void print_storage(Storage toPrint);
+void print_storage_no_dummy(Storage toPrint);
+
+
+typedef struct{
+
+	Block stash[STASH_SIZE];
+	int stashIDX;
+	int pmBID[PM_SIZE];
+	int pmIDX[PM_SIZE];
+
+}StorageManager;
+
+StorageManager create_manager(void);
+
+int add_bid(StorageManager* lookIn, int bid);
+int look_up_bid(StorageManager* lookIn, int bid);
+void print_stash(StorageManager* lookIn, int printDummy);
+
 
 #endif

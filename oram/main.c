@@ -11,16 +11,16 @@
 
 #include <math.h>
 
-Block stash[20];
-int stashIDX = 0;
-int pmBID[3];
-int pmIDX[3];
+//Block stash[20];
+//int stashIDX = 0;
+//int pmBID[5];
+//int pmIDX[5];
 
 int addBlock(Bucket* barr, Block b){
 	int i, j;
 	for(i=2; i>-1; i--){
 		for(j=0; j<MAX_BUCKET_SIZE; j++){
-			if(barr[i].blocks[j].data[0] >= INIT_STORAGE_ELEMS){
+			if(barr[i].blocks[j].data[0] >= HASH_RANGE){
 				barr[i].blocks[j] = b;
 				return 1;
 			}	
@@ -32,11 +32,11 @@ int addBlock(Bucket* barr, Block b){
 }
 
 
-int getpmID(int bid){
+int getpmID(StorageManager* oramSM, int bid){
 	
 	int i, retval = -1;
 	for(i = 0; i<3; i++){
-		if(pmBID[i] == bid){
+		if(oramSM->pmBID[i] == bid){
 			retval = i;
 		}
 	}
@@ -46,29 +46,52 @@ int getpmID(int bid){
 
 //return the largest int where a tree would match indicies
 //@return a valid index for the bucket array to set
-int intersect_idx(int leafOne, int leafTwo, int height){
-	return height - abs( (leafOne>>1) - (leafTwo>>1) ) - 1;
+int intersect_idx(int leafOne, int leafTwo, int height, int numBuckets, int leaves){
+	int leafOneIdx = numBuckets - leaves + leafOne;
+	int leafTwoIdx = numBuckets - leaves + leafTwo;
+	int i = height - 1;
+	while (leafOneIdx > -1 && leafTwoIdx > -1 && i > -1){
+		if(leafOneIdx == leafTwoIdx){
+			return i;
+		}
+		
+		leafOneIdx = ((leafOneIdx+1)>>1)-1;
+		leafTwoIdx = ((leafTwoIdx+1)>>1)-1;
+		i--;
+	}
+	return i;
+	//return height - abs( (leafOne>>1) - (leafTwo>>1) ) - 1;
+	
 }
 
 
-Block access(Storage* oram, int op, Block* data, int pmID){
-	int idx = pmIDX[pmID];
+Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramSM){
+	int idx = oramSM->pmIDX[pmID];
 	//generate a new index for the data
 	int newidx = rand()%oram->leaves;
+	//printf("new location: %d\n", newidx);
 	
 	
 	//read in one path and place the contents into the stash Note: we executed TREE_HEIGHT*MAX_BUCKET_SIZE block reads atm
 	Bucket path[oram->height];
 	get_buckets(oram, idx, path);
 	int i,j,k;
+	
+	//printf("**Printing path read\n");
+	//for(i=0; i< oram->height; i++){
+	//	printf("i: %d\n", i);
+	//	print_bucket_no_dummy(path[i]);
+	//}
+	
 	//for each bucket
 	for(i=0; i<oram->height; i++){
 		//for each block in bucket
 		for(j=0; j<MAX_BUCKET_SIZE; j++){
 			//store in stash if it is valid
-			if(path[i].blocks[j].data[0] < INIT_STORAGE_ELEMS){
-				stash[stashIDX] = path[i].blocks[j];
-				stashIDX++;
+			if(path[i].blocks[j].data[0] < HASH_RANGE){
+				//what do I do if the element is already in the stash???
+				oramSM->stash[oramSM->stashIDX] = path[i].blocks[j];
+				oramSM->stashIDX++;
 			}
 		}
 	}
@@ -84,37 +107,96 @@ Block access(Storage* oram, int op, Block* data, int pmID){
 	
 	//now the stash contains the Block I want (likely)
 	//now is when we decrypt and handle what the operation should do
+	//op == 2 is append
 	//op == 1 is write
 	//op == 0 is read
-	Block retval;
-	if(op == 0){
-		for(i = 0; i<stashIDX; i++){
-			if(stash[i].data[0] == pmBID[pmID]){
+	Block retval = create_dummy_block();
+	int saved = 0;
+	//read
+	if(op == ORAM_READ){
+		for(i = 0; i<oramSM->stashIDX; i++){
+			if(oramSM->stash[i].data[0] == oramSM->pmBID[pmID]){
 				
-				retval = stash[i];
-				data = &(stash[i]);
-				
+				retval = oramSM->stash[i];
+				data = &(oramSM->stash[i]);
+					
 			}
 		}
 	}
-	if(op == 1){
-		int saved = 0;
-		for(i = 0; i<stashIDX; i++){
-			if(stash[i].data[0] == pmBID[pmID]){
-				stash[i] = *(data);
-				saved = 1;
+	
+	
+	//data modification
+	if(op == ORAM_WRITE || op == ORAM_APPEND){
+		//write (i.e. overwrite with new data)
+			//make sure that data is the proper array
+		if(op == ORAM_WRITE){
+			for(i = 0; i<oramSM->stashIDX; i++){
+				if(oramSM->stash[i].data[0] == oramSM->pmBID[pmID]){
+					//we found the data, let overwrite it.
+					memset(oramSM->stash[i].data, 0, MAX_BLOCK_SIZE);
+					for(j=0; j<MAX_BLOCK_SIZE; j++){
+						oramSM->stash[i].data[j] = data->data[j];
+					}
+					saved = 1;
 				
-				break;
+					break;
+				}
 			}
 		}
-		if(saved == 0){
-			//if writing and block is not in the stash, then assume it was never in the tree to begin with and add it to the stash
-			stash[stashIDX] = *(data);
-			stashIDX += 1;
+		//append
+		//on append we write the first 64 valid elements into the block on the array.
+		if(op==ORAM_APPEND){
+			for(i = 0; i<oramSM->stashIDX; i++){
+				//we found the block we want to manipulate
+				
+				//data is 65
+				//block is 641 ish
+				//data needs to be added to increments of 64 starting from 1 to 641 - 64 
+				//printf("Stashes Hash Val: %d\n", oramSM->stash[i].data[0]);
+				//printf("\tInput Hash Val: %d\n", oramSM->pmBID[pmID]);
+				if(oramSM->stash[i].data[0] == oramSM->pmBID[pmID]){
+					//printf("hit data found\n");
+					saved = 1;
+					int p, k;
+					//search for an open spot
+					for(p=1; p <= MAX_BLOCK_SIZE - 64; p = p + 64){
+						if(oramSM->stash[i].data[p] == 0){
+							//found the index let's shove the data in
+							break;
+						}
+					}
+					//printf("The index found is: %d\n", p);
+					//error check for whether we can't fit an element into the block
+					if(p > MAX_BLOCK_SIZE - 64){
+						printf("\n\nWe exceeded the number of elements in this block, Please increase the size of the block or change the hashing strategy\n\n");
+						abort();
+					
+					}
+				
+					for(k=1; k < 65; k++){
+						oramSM->stash[i].data[p] = data->data[k];
+						p++;
+					}
+				
+					break;
+				}
+			}
 		}
+		//if writing and block is not in the stash, then assume it was never in the tree to begin with and add it to the stash
+		//this applies to either append or write
+		if(saved == 0){
+			//printf("making a new save\n");
+			memset(oramSM->stash[oramSM->stashIDX].data, 0, MAX_BLOCK_SIZE);
+			for(j=0; j<65; j++){
+				oramSM->stash[oramSM->stashIDX].data[j] = data->data[j];
+			}
+			oramSM->stashIDX += 1;
+		}
+	
+		
 	}	
 	//Now that the reading is done we can save the new index into the position map
-	pmIDX[pmID] = newidx;
+	oramSM->pmIDX[pmID] = newidx;
 	
 	//Now initiate the writeback by creating the path of buckets and then seting them.
 
@@ -124,21 +206,24 @@ Block access(Storage* oram, int op, Block* data, int pmID){
 	}
 	
 	int breakLoop = 0, count = 0, leafIDX, numMatch;
+	//printf("count - %d\n", count);
 	//for each element in the stash
-	for(i=0; i<stashIDX; i++){
+	for(i=0; i<oramSM->stashIDX; i++){
 		//printf("Stash item %d %s\n",  
 		//get leaf index
-		leafIDX = pmIDX[getpmID(stash[i].data[0])];
+		leafIDX = oramSM->pmIDX[getpmID(oramSM,oramSM->stash[i].data[0])];
 		//now we need to determine which bucket it should go in
-		numMatch = intersect_idx(leafIDX, idx, oram->height);
+		numMatch = intersect_idx(leafIDX, idx, oram->height, oram->numBuckets, oram->leaves);
+		//printf("This bucket should be: %d\n", numMatch);
 		for(j = numMatch; j > -1; j--){
 			for(k=0; k < MAX_BUCKET_SIZE; k++){
 				//look for a dummy block to store the values into
-				if(newPath[j].blocks[k].data[0] >= INIT_STORAGE_ELEMS){
-					newPath[j].blocks[k] = stash[i];
+				if(newPath[j].blocks[k].data[0] >= HASH_RANGE){
+					//printf("found dummy\n");
+					newPath[j].blocks[k] = oramSM->stash[i];
 					
 					//mark this in the stash that it is dummy
-					stash[i].data[0] = (rand()%(255-INIT_STORAGE_ELEMS) )+ INIT_STORAGE_ELEMS ;
+					oramSM->stash[i].data[0] = (rand()%(255-HASH_RANGE) )+ HASH_RANGE ;
 					count++;
 					breakLoop = 1;
 					break;
@@ -219,27 +304,47 @@ Block access(Storage* oram, int op, Block* data, int pmID){
 		print_bucket(newPath[i]);
 	}
 	
+	==*/
+	//printf("Stashidx %d\n count %d\n", oramSM->stashIDX, count);
+	//printf("stash contents\n");
+	//for(i=0; i<STASH_SIZE; i++){
+	//	printf("\t%d\n", oramSM->stash[i].data[0]);
+	//}
+
+	//printf("**Printing path to be written\n");
+	//for(i=0; i< oram->height; i++){
+	//	printf("i: %d\n", i);
+	//	print_bucket_no_dummy(newPath[i]);
+	//}
 	
-	printf("Stashidx %d\n count %d\n", stashIDX, count);*/
+	
+	
+	//printf("***Printing Stash\n");	
+	//print_stash(oramSM, 1);
+	
 	//compress the stash if there are blocks inside of it.
 	//Algorithm generally follows a move everything into a new stash and then move everything back.
-	if(stashIDX-count){
-		Block stashTemp[stashIDX - count];
+	if(oramSM->stashIDX-count){
+		Block stashTemp[oramSM->stashIDX - count];
 	
 		//now we clean up the stash so that everything is back in the right spot
 		j=0;//using j for a stashTemp index
-		for (i=0;i<stashIDX; i++){
-			if(stash[i].data[0] >= INIT_STORAGE_ELEMS){
-				stashTemp[j] = stash[i];
+		for (i=0;i<oramSM->stashIDX; i++){
+			if(oramSM->stash[i].data[0] < HASH_RANGE){
+				stashTemp[j] = oramSM->stash[i];
 				j+=1;
 				//stash[i] = create_dummy_block();
 			}
 		}
-		stashIDX -= count;
-		for(i=0; i<stashIDX; i++){
-			stash[i] = stashTemp[i];
+		oramSM->stashIDX -= count;
+		for(i=0; i<oramSM->stashIDX; i++){
+			oramSM->stash[i] = stashTemp[i];
 		}
+	}else{
+		oramSM->stashIDX = 0;
 	}
+	//printf("***Printing Stash\n");	
+	//print_stash(oramSM, 1);
 
 	//finally we place the buckets into the tree.
 	set_buckets(oram, idx, newPath);
@@ -323,6 +428,7 @@ void testcode(){
 	print_bucket(dumdum);
 
 	Storage test = create_storage();
+	StorageManager testSM;
 	
 	print_storage(test);
 	
@@ -381,22 +487,22 @@ void testcode(){
 	//printf("%d %s\n", one.bid, one.data);
 	//simulate a new block being placed into the storage
 	
-	pmBID[0] = 1;
-	pmBID[1] = 2;
-	pmBID[2] = 3;
+	testSM.pmBID[0] = 1;
+	testSM.pmBID[1] = 2;
+	testSM.pmBID[2] = 3;
 		
-	access(&test, 1, &one, 0);
-	access(&test, 1, &two, 1);
-	access(&test, 1, &three, 2);
+	access(&test, ORAM_WRITE, &one, 0, &testSM);
+	access(&test, ORAM_WRITE, &two, 1, &testSM);
+	access(&test, ORAM_WRITE, &three, 2, &testSM);
 	
 	
-	print_storage(test);	
+	print_storage(test);
 
 	printf("trying to read a block\n");
 	
 	Block r;
 	
-	r = access(&test, 0, &r, 1);
+	r = access(&test, ORAM_READ, &r, 1, &testSM);
 	printf("success\n");
 	//printf("%d %s\n", r.bid, r.data);
 	for(i=0; i<MAX_BLOCK_SIZE; i++){
@@ -424,7 +530,7 @@ void testFileIO(){
 
 	
 
-	for(i=0; i<200; i++){
+	for(i=0; i<20; i++){
 		printf("%s\n", orderToStr(orders[i])); 
 	}
 	
@@ -456,19 +562,318 @@ void testFileIO(){
 
 }
 
+
+Block block_from_serialized(uint8_t* data){
+	int id = hash(data);
+	//transfer this data to one of the right size
+	uint8_t bData[MAX_BLOCK_SIZE];
+	memset(bData, 0, MAX_BLOCK_SIZE);
+	memcpy(bData, data, 64);
+	//int i;
+	//for(i = 0; i<64; i++){
+	//	bData[i] = data[i];
+	//}
+
+	return create_block(id, bData);
+
+}
+
+void addTuple(Customer* c, Order* o, int isCust, Storage* oram, StorageManager* oramSM){
+
+	uint8_t* cereal = serialize(c, o, isCust);
+	Block toEnter = block_from_serialized(cereal);
+	int pm_loc = add_bid(oramSM, toEnter.data[0]);
+	//printf("(hash, pm, loc) (%d, %d, %d)\n", toEnter.data[0], pm_loc, oramSM->pmIDX[pm_loc]);
+	//run a check for a failed add_bid
+	if(pm_loc+1){
+		access(oram, ORAM_APPEND, &toEnter, pm_loc, oramSM);
+	}
+	else{
+		printf("Add Tuple failed\n");
+		abort();
+	}
+	
+	free(cereal);
+}
+
+
+void readAndStore(){
+	printf("reading custs\n");
+	Customer custs[10];
+	readCust("../dataGen/customer.csv", 10, custs);
+	
+	Order orders[20];
+	readOrder("../dataGen/order.csv", 20, orders);
+	
+	//quick serialize with hash check
+	/*uint8_t* sereal = serialize(&custs[0], NULL, 1);
+	uint8_t* sereal2 = serializeWithHash(&custs[0], NULL, 1);
+	
+	for(i=0; i<64; i++){
+		printf("%d ", sereal[i]);
+	}
+	printf("\n");
+	
+	for(i=0; i<65; i++){
+		printf("%d ", sereal2[i]);
+	}
+	printf("\n");
+	
+	Customer dS;
+	deserialize(sereal, &dS, NULL, 1);
+	
+	printf("%s\n", custToStr(dS));
+	
+	Customer dSH;
+	deserializeWithHash(sereal2, &dSH, NULL, 1);
+	printf("%s\n", custToStr(dSH));
+	
+	abort();*/
+	
+	printf("Printing content with hash to check that it works right\n");
+	int i;
+	char* tmp;
+	uint8_t* cereal;
+	int hashVal;
+	for(i=0; i<10; i++){
+		tmp = custToStr(custs[i]);
+		printf("%s\n", tmp); 
+		cereal = serialize(&custs[i], NULL, 1);
+		hashVal = hash(cereal);
+		printf("\t%d\n", hashVal);
+		
+		free(tmp);
+		free(cereal);
+	}
+
+	for(i=0; i<20; i++){
+		tmp = orderToStr(orders[i]);
+		printf("%s\n", tmp);
+		cereal = serialize(NULL, &orders[i], 0);
+		hashVal = hash(cereal);
+		printf("\t%d\n", hashVal);
+		free(tmp);
+		free(cereal); 
+	}
+	printf("\n");
+	printf("Now we make 2 storages and managers and store this information.\n");
+	
+	Storage custStore = create_storage();
+	StorageManager custSM = create_manager();
+	
+	Storage orderStore = create_storage();
+	StorageManager orderSM = create_manager();
+	
+	
+	for(i=0; i<10; i++){
+		addTuple(&custs[i], NULL, 1, &custStore, &custSM);
+		//printf("%d\n", i);
+		//print_storage_no_dummy(custStore);
+		//printf("Stash IDX: %d\n", custSM.stashIDX);
+		//printf("*************BUFFER LINE\n\n");
+	}
+	
+	for(i=0; i<20; i++){
+		addTuple(NULL,&orders[i], 0, &orderStore, &orderSM);
+		//printf("%d\n", i);
+		//print_storage_no_dummy(custStore);
+		//printf("Stash IDX: %d\n", custSM.stashIDX);
+		//printf("*******Printing Storage************\n");
+		//print_storage_no_dummy(orderStore);
+		//printf("*************BUFFER LINE\n\n");
+	}
+	
+	
+	print_storage_no_dummy(custStore);
+	if(custSM.stashIDX){
+		printf("There is stuff in the stash contents\n");
+		print_stash(&custSM, 0);
+		printf("\n");
+	}
+	else{
+		printf("There is nothing in this stash\n");
+	}
+	printf("*************BUFFER LINE\n\n");
+	print_storage_no_dummy(orderStore);
+	if(orderSM.stashIDX){
+		printf("There is stuff in the stash contents\n");
+		print_stash(&orderSM, 0);
+		printf("\n");
+	}
+	else{
+		printf("There is nothing in this stash\n");
+	}
+		
+	//for(i=0; i<PM_SIZE; i++){
+	//	printf("pmVals: %d\n", orderSM.pmBID[i]);
+	//}
+	
+}
+
+void SymmetricHashJoin(Storage* cust, StorageManager* custSM, Storage* order, StorageManager* orderSM, uint8_t** inputArr, int len){
+
+	Order tmpO;
+	Customer tmpC;
+	int i, hashVal, pm;
+	for(i = 0; i<len; i++){
+		//compute the hash value since we will anyways
+		hashVal = hash(inputArr[i]);
+		//determine if the current element is a customer or an order
+		if(isCust(inputArr[i])){
+			printf("is cust\n");
+			deserialize(inputArr[i], &tmpC, NULL, 1);
+			
+			pm = look_up_bid(orderSM, hashVal);
+			if(pm == -1){
+				//this hash val does not exist in the order storage so make a random number
+				pm = rand()&HASH_RANGE;
+			}
+			//use the hash val and get the set of tuples from order that matches
+			Block lookIn; 
+			lookIn = access(order, ORAM_READ, &lookIn, pm, orderSM);
+			
+			//now do a quick check for if the Block retrieved is valid
+			if(lookIn.data[0] < HASH_RANGE){
+				//This block is valid now loop and do a join if the id's match
+				
+				int j;
+				for(j = 1; j<MAX_BLOCK_SIZE && lookIn.data[j]; j = j+64){
+					//deserialize the data located here into tmp
+					deserialize( (lookIn.data+j) , NULL, &tmpO, 0);
+					if( tmpO.id == tmpC.id){
+						//we found a match
+						printf("Match: %s %s\n", custToStr(tmpC), orderToStr(tmpO));
+						break;
+					}
+				}
+			}
+			
+			//now that the join happened or not store this particular tuple into the tree
+			addTuple(&tmpC, NULL, 1, cust, custSM);
+			
+		}
+		else{
+			printf("is order\n");
+			deserialize(inputArr[i], NULL, &tmpO, 0);
+			
+			pm = look_up_bid(custSM, hashVal);
+			if(pm == -1){
+				//this hash val does not exist in the order storage so make a random number
+				pm = rand()&HASH_RANGE;
+			}
+			//use the hash val and get the set of tuples from order that matches
+			Block lookIn; 
+			lookIn = access(cust, ORAM_READ, &lookIn, pm, custSM);
+			
+			//now do a quick check for if the Block retrieved is valid
+			if(lookIn.data[0] < HASH_RANGE){
+				//This block is valid now loop and do a join if the id's match
+				
+				int j;
+				for(j = 1; j<MAX_BLOCK_SIZE && lookIn.data[j]; j = j+64){
+					//deserialize the data located here into tmp
+					deserialize( (lookIn.data+j) , &tmpC, NULL, 1);
+					if( tmpO.id == tmpC.id){
+						//we found a match
+						printf("Match: %s %s\n", custToStr(tmpC), orderToStr(tmpO));
+						break;
+					}
+				}
+			}
+			
+			//now that the join happened or not store this particular tuple into the tree
+			addTuple(NULL, &tmpO, 0, order, orderSM);
+			
+		}	
+		
+	
+	}
+	
+	printf("printing the trees for info\n\n");
+	
+	printf("*************************\nCustomer\n");
+	print_storage_no_dummy(*cust);
+	print_stash(custSM, 0);
+	
+	printf("*************************\nOrder\n");
+	print_storage_no_dummy(*order);
+	print_stash(orderSM, 0);
+
+} 
+
+void testJoin(){
+	//first prepare the simulated input stream
+	Customer custs[10];
+	readCust("../dataGen/customer.csv", 10, custs);
+	
+	Order orders[20];
+	readOrder("../dataGen/order.csv", 20, orders);	
+	
+	uint8_t* cerealBox[30];
+	
+	
+	int idx = 0, i;
+	
+	//serialize the data and place into serialized data array
+	for(i=0; i<20; i++){
+		
+		if(i<10){
+			cerealBox[idx] = serialize(&custs[i], NULL, 1);
+			idx++;
+		}
+		
+		cerealBox[idx] = serialize(NULL, &orders[i], 0);
+		idx++;
+	}
+	// elements are placed in an alternating pattern
+
+	printf("The data has been read in and serialized into an array, creating two storages and going to join the data\n");	
+	Storage custStore = create_storage();
+	StorageManager custSM = create_manager();
+	
+	Storage orderStore = create_storage();
+	StorageManager orderSM = create_manager();
+	
+	SymmetricHashJoin(&custStore, &custSM, &orderStore, &orderSM, cerealBox, 30);
+
+}
+void test_insert_idx(){
+	printf("Correct / Found\n");
+	printf("3 / %d\n", intersect_idx(0, 0, 4, 15, 8));
+	printf("2 / %d\n", intersect_idx(0, 1, 4, 15, 8));
+	printf("1 / %d\n", intersect_idx(0, 2, 4, 15, 8));
+	printf("1 / %d\n", intersect_idx(0, 3, 4, 15, 8));
+	printf("0 / %d\n", intersect_idx(0, 4, 4, 15, 8));
+	printf("0 / %d\n", intersect_idx(0, 5, 4, 15, 8));
+	printf("0 / %d\n", intersect_idx(0, 6, 4, 15, 8));
+	printf("0 / %d\n", intersect_idx(0, 7, 4, 15, 8));
+	printf("3 / %d\n", intersect_idx(1, 1, 4, 15, 8));
+	printf("1 / %d\n", intersect_idx(1, 2, 4, 15, 8));
+	printf("1 / %d\n", intersect_idx(1, 3, 4, 15, 8));
+	printf("0 / %d\n", intersect_idx(1, 4, 4, 15, 8));
+	printf("0 / %d\n", intersect_idx(1, 5, 4, 15, 8));
+	printf("0 / %d\n", intersect_idx(1, 6, 4, 15, 8));
+	printf("0 / %d\n", intersect_idx(1, 7, 4, 15, 8));
+	printf("1 / %d\n", intersect_idx(7, 5, 4, 15, 8));
+	printf("0 / %d\n", intersect_idx(5, 3, 4, 15, 8));
+}
+
 int main(){
 
 	
 
 	printf("compile\n");
 	
-	//testFileIO();
-
+	
+	//test_insert_idx();
+	
 	//printf("%d", (int)(pow(2, log(INIT_STORAGE_ELEMS)/log(2)+1)-1));
 	
-	testcode();
+	//testcode();
 	
-	
+	//readAndStore();
+	testJoin();
+	//testFileIO();
 	return 1;
 }
 

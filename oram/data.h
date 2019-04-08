@@ -25,6 +25,11 @@ char* orderToStr(Order c);
 uint8_t* serialize(Customer* c, Order* o, int isCust); 
 void deserialize(uint8_t* cereal, Customer* c, Order* o, int isCust);
 
-unsigned long hash(unsigned char *str);
+uint8_t* serializeWithHash(Customer* c, Order* o, int isCust); 
+void deserializeWithHash(uint8_t* cereal, Customer* c, Order* o, int isCust);
+
+int isCust(uint8_t* cereal);
+
+int hash(uint8_t* str);
 
 #endif

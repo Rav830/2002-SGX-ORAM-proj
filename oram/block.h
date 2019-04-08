@@ -19,5 +19,7 @@ typedef struct{
 //creates a block with a bid data set to all ones 
 Block create_block(uint8_t bid, uint8_t data[]); 
 Block create_dummy_block();
+void print_block(Block toPrint);
+
 
 #endif //BLOCK_H

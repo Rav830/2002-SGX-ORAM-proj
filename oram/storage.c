@@ -3,6 +3,7 @@
 #include "block.h"
 #include <math.h>
 #include <stdio.h>
+#include <stdint.h>
 
 
 Storage create_storage(){
@@ -30,9 +31,17 @@ void print_storage(Storage toPrint){
 	for(i=0; i<toPrint.numBuckets; ++i){
 		printf("Bucket %d:\n", i);
 		print_bucket(toPrint.allBuckets[i]);
-	
-
 	}
+}
+
+void print_storage_no_dummy(Storage toPrint){
+	
+	int i;
+	for(i=0; i<toPrint.numBuckets; ++i){
+		printf("Bucket %d:\n", i);
+		print_bucket_no_dummy(toPrint.allBuckets[i]);
+	}
+
 }
 
 int idxToParentIndex(int index){
@@ -148,7 +157,7 @@ int place_block_in_storage(Storage* toPlace, Block data, int index){
 		//for each block in that bucket
 		for(j=0; j<MAX_BUCKET_SIZE; j++){
 			//Check if this is a valid location to place the block
-			if( toPlace->allBuckets[ path[i] ].blocks[j].data[0] >= INIT_STORAGE_ELEMS){
+			if( toPlace->allBuckets[ path[i] ].blocks[j].data[0] >= HASH_RANGE){
 				toPlace->allBuckets[ path[i] ].blocks[j] = data;
 				retval = 1;
 				break;
@@ -167,7 +176,65 @@ int place_block_in_storage(Storage* toPlace, Block data, int index){
 }
 
 
+//all this really does is set the pmbid to be all -1 for later, otherwise it sets things to 0 just to be helpful
+//initialize the pm locations to 
+StorageManager create_manager(){
+
+	StorageManager retval;
+	retval.stashIDX = 0;
+	int i;
+	for(i=0; i < PM_SIZE; i++){
+		retval.pmBID[i] = -1;
+		retval.pmIDX[i] = 0;//rand()%HASH_RANGE;
+	}
+	
+	return retval;
+
+}
 
 
+int add_bid(StorageManager* lookIn, int bid){
+	int i;
+	for(i=0; i<PM_SIZE; i++){
+		if(lookIn->pmBID[i] == -1){
+			lookIn->pmBID[i] = bid;	
+		}
+		
+		if(lookIn->pmBID[i] == bid){
+			return i;
+		}
+	}
+	
+	printf("Ran out of space in the position map\n\n");
+	
+	return -1;
+
+}
+
+int look_up_bid(StorageManager* lookIn, int bid){
+	int i;
+	for(i=0; i<PM_SIZE; i++){
+		if(lookIn->pmBID[i] == bid){
+			return i;
+		}
+	}
+	return -1;		
+}
+
+void print_stash(StorageManager* lookIn, int printDummy){
+	
+	int i;
+	for(i=0; i< lookIn->stashIDX; i++){
+		if(lookIn->stash[i].data[0] < HASH_RANGE || printDummy){
+			printf("Block %d\n\t", i);
+			print_block(lookIn->stash[i]);
+			printf("\n");
+			
+		
+		}
+	
+	}
+
+}
 
 
