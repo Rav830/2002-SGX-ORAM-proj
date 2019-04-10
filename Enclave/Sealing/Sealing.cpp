@@ -24,6 +24,15 @@
  */
 sgx_status_t seal(uint8_t* plaintext, size_t plaintext_len, sgx_sealed_data_t* sealed_data, size_t sealed_size) {
     sgx_status_t status = sgx_seal_data(0, NULL, plaintext_len, plaintext, sealed_size, sealed_data);
+    
+    //uint32_t var = sgx_calc_sealed_data_size(0 , plaintext_len);
+    //ocall_print_int(var);
+   	//const uint32_t additional_MACtext_length, 0
+	//const uint8_t *p_additional_MACtext, null
+	//const uint32_t text2encrypt_length, len
+	//const uint8_t *p_text2encrypt, text
+	//const uint32_t sealed_data_size, size
+	//sgx_sealed_data_t *p_sealed_data data
     return status;
 }
 

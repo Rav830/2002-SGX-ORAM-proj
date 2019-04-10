@@ -14,6 +14,7 @@ typedef struct{
 
 } Product;
 
+/*
 typedef struct Block Block;
 
 struct Block{
@@ -24,7 +25,7 @@ struct Block{
 
 };
 
-
+*/
 void setGlobalID(sgx_enclave_id_t input);
 
 

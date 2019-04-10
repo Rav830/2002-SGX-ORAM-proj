@@ -25,8 +25,8 @@ int ocall_add(int a, int b){
 	return a + b;
 }
 
-void ocall_print_int(int a){
-	printf("o_p_i: %d\n", a);
+void ocall_print_int(size_t a){
+	printf("o_p_i: %zu\n", a);
 }
 
 /*int[] ocall_get_arr(){
@@ -43,7 +43,15 @@ int main(int argc, char const *argv[]) {
     
     sgx_status_t status;
     
-    int id = 1;
+    int justCause = 4;
+    int retval;
+    status = enclave_main(global_eid, &retval, &justCause);
+    
+    if(status != SGX_SUCCESS){
+		return 1;
+	}
+      
+    /*int id = 1;
     char name[] = "prodName";
     
     Product* p = createProduct(id, name, 0);
@@ -83,7 +91,7 @@ int main(int argc, char const *argv[]) {
     */
     
 
-    int i;    
+    /*int i;    
     Product** p_arr = genProducts(50);
     Customer** c_arr = genCustomers(5);
     
@@ -107,7 +115,7 @@ int main(int argc, char const *argv[]) {
         return 1;
     }
     
-
+*/
 
 	
 	
@@ -122,6 +130,9 @@ int main(int argc, char const *argv[]) {
     return 0;
 }
     /*
+    
+   
+    
     //#####################################################
     //Random number generation 
     int ptr;
@@ -132,7 +143,44 @@ int main(int argc, char const *argv[]) {
     }
     printf("Random number: %d\n", ptr);
 	//#####################################################
-	
+	   //#####################################################
+    // Seal a string
+    //int ptr = 100;
+    char ptr[100]; //"abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi";
+    memset(ptr, 0, 100);
+    size_t sealed_size = sizeof(sgx_sealed_data_t) + sizeof(char)*100;
+    uint8_t* sealed_data = (uint8_t*)malloc(sealed_size);
+    int i;
+	char unsealed[100];
+
+    sgx_status_t ecall_status;
+    status = seal(global_eid, &ecall_status,
+            (uint8_t*)ptr, 100*sizeof(char), //plain text and plaintext len???
+            (sgx_sealed_data_t*)sealed_data, sealed_size); //sealed data and sealed ??
+
+    if (!is_ecall_successful(status, "Sealing failed :(", ecall_status)) {
+        return 1;
+    }
+    
+    
+    printf("sealed_size = %lu\n", sealed_size);
+    for(i=0; i<sealed_size; i++){
+    	printf("%d ", sealed_data[i]);
+    }
+	printf("\n");
+   
+    status = unseal(global_eid, &ecall_status,
+            (sgx_sealed_data_t*)sealed_data, sealed_size,
+            (uint8_t*)unsealed, 100*sizeof(char));
+
+    if (!is_ecall_successful(status, "Unsealing failed :(", ecall_status)) {
+        return 1;
+    }
+
+    std::cout << "Seal round trip success! Receive back " << unsealed << std::endl;
+
+	//#####################################################
+
 	//#####################################################
     // Perform a simple addition in the enclave
     int a = ptr;
@@ -163,31 +211,7 @@ int main(int argc, char const *argv[]) {
 	std::cout << "Enclave multiplication success! " << x << " * " << y << " = " << retval << std::endl;
     //#####################################################
 	
-	//#####################################################
-    // Seal the random number
-    size_t sealed_size = sizeof(sgx_sealed_data_t) + sizeof(ptr);
-    uint8_t* sealed_data = (uint8_t*)malloc(sealed_size);
-
-    sgx_status_t ecall_status;
-    status = seal(global_eid, &ecall_status,
-            (uint8_t*)&ptr, sizeof(ptr),
-            (sgx_sealed_data_t*)sealed_data, sealed_size);
-
-    if (!is_ecall_successful(status, "Sealing failed :(", ecall_status)) {
-        return 1;
-    }
-
-    int unsealed;
-    status = unseal(global_eid, &ecall_status,
-            (sgx_sealed_data_t*)sealed_data, sealed_size,
-            (uint8_t*)&unsealed, sizeof(unsealed));
-
-    if (!is_ecall_successful(status, "Unsealing failed :(", ecall_status)) {
-        return 1;
-    }
-
-    std::cout << "Seal round trip success! Receive back " << unsealed << std::endl;
-	//#####################################################
+	
 	
 	printf("\n\nSome Buffer Space\n\n");
 	
