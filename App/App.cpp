@@ -3,23 +3,31 @@
 #include "Enclave_u.h"
 #include "sgx_urts.h"
 #include "sgx_utils/sgx_utils.h"
-#include "../Include/tableData.h"
-#include "Join/appJoin.cpp"
+//#include "../Include/data.hpp"
+#include "../Include/oramStructs.hpp"
+#include "../Include/dataStruct.hpp"
+#include "dataFunc.hpp"
+//#include "Join/appJoin.cpp"
 
+
+//#include "EncryptionTest.cpp"
 
 /* Global EID shared by multiple threads */
 sgx_enclave_id_t global_eid = 0;
 
-int pull[20] = {1,2,3,4,5,6,7,8,9,0,9,8,7,6,5,4,3,2,1,0};
+int pull[20] = {0};
 
 int num;
 
 // OCall implementations
-void ocall_print(const char* str) {
+void ocall_println(const char* str) {
     printf("%s\n", str);
     fflush(stdout);
 }
-
+void ocall_print(const char* str) {
+    printf("%s", str);
+    fflush(stdout);
+}
 int ocall_add(int a, int b){
 	printf("Adding outside\n");
 	return a + b;
@@ -29,12 +37,65 @@ void ocall_print_int(size_t a){
 	printf("o_p_i: %zu\n", a);
 }
 
+void print_storage(Storage justCause){
+	int i, j,k;
+	for(k = 0; k< INIT_STORAGE_SIZE; k++){
+		printf("Bucket %d\n", k);
+		for (j = 0; j<MAX_BUCKET_SIZE; j++){
+			printf("Block %d\n", j);
+			for(i = 0; i<MAX_BLOCK_SIZE; i++){
+				printf("%d ", justCause.allBuckets[k].blocks[j].data[i]);
+			}
+			printf("\n");
+		}
+	}
+}
+
 /*int[] ocall_get_arr(){
 	return pull; 
-}*/
+}
+
+void testJoin(){
+	//first prepare the simulated input stream
+	Customer custs[20];
+	readCust("../dataGen/customer.csv", 20, custs);
+	
+	Order orders[80];
+	readOrder("../dataGen/order.csv", 80, orders);	
+	
+	uint8_t* cerealBox[100];
+	
+	
+	int idx = 0, i;
+	
+	//serialize the data and place into serialized data array
+	for(i=0; i<80; i++){
+		
+		if(i<20){
+			cerealBox[idx] = serialize(&custs[i], NULL, 1);
+			idx++;
+		}
+		
+		cerealBox[idx] = serialize(NULL, &orders[i], 0);
+		idx++;
+	}
+	// elements are placed in an alternating pattern
+
+	printf("The data has been read in and serialized into an array, creating two storages and going to join the data\n");	
+
+	StorageManager custSM = create_manager();
+	
+	Storage orderStore = create_storage();
+	StorageManager orderSM = create_manager();
+	
+	SymmetricHashJoin(&custStore, &custSM, &orderStore, &orderSM, cerealBox, 100);
+
+}
+*/
 
 
 int main(int argc, char const *argv[]) {
+
 	//Create the Enclave
     if (initialize_enclave(&global_eid, "enclave.token", "enclave.signed.so") < 0) {
         std::cout << "Fail to initialize enclave." << std::endl;
@@ -43,15 +104,132 @@ int main(int argc, char const *argv[]) {
     
     sgx_status_t status;
     
-    int justCause = 4;
+    Storage justCause;
+    //print_storage(justCause);
     int retval;
-    status = enclave_main(global_eid, &retval, &justCause);
+    //printf("SGX SUCCESS: %d\n", SGX_SUCCESS);
+    //printf("SGX_ERROR_INVALID_PARAMETER: %d\n", SGX_ERROR_INVALID_PARAMETER);
+    //printf("SGX_ERROR_OUT_OF_MEMORY: %d\n", SGX_ERROR_OUT_OF_MEMORY);
+    //printf("SGX_ERROR_UNEXPECTED: %d\n", SGX_ERROR_UNEXPECTED ); 
+    
+    
+    Customer custs[20];
+    char cpath[] = "dataGen/customer.csv";
+	readCust(cpath, 20, custs);
+	
+	Order orders[80];
+	char opath[] = "dataGen/order.csv";
+	readOrder(opath, 80, orders);	
+	
+	uint8_t* cerealBox[100];
+	
+	
+	int idx = 0, i;
+	
+	//serialize the data and place into serialized data array
+	for(i=0; i<80; i++){
+		
+		if(i<20){
+			cerealBox[idx] = serialize(&custs[i], NULL, 1);
+			idx++;
+		}
+		
+		cerealBox[idx] = serialize(NULL, &orders[i], 0);
+		idx++;
+	}
+	// elements are placed in an alternating pattern
+
+    Storage custStore;// = create_storage();
+    Storage orderStore;// = create_storage();
+    
+    status = ecall_sjoin(global_eid, &custStore, &orderStore, cerealBox, 100);
+    /*
+    testB tObj;
+    tObj.c = 66;
+   	status = ecall_testStruct(global_eid, &tObj); 
+    
+    printf("c: %d\n", tObj.c);
+    printf("a: %d\n", tObj.d.a);
+	printf("b: %d\n", tObj.d.b);
+	printf("B addr: %p\n", (void*)(&tObj));
+	printf("A addr: %p\n", (void*)(&tObj.d));
+    */
+    //status = enclave_main(global_eid, &retval, &justCause);
     
     if(status != SGX_SUCCESS){
 		return 1;
 	}
-      
-    /*int id = 1;
+	//print_storage(justCause);
+	
+    
+    //#####################################################
+    // Seal a string
+    //int ptr = 100;
+    /*char ptr[100] = "abcdef";
+    //memset(ptr, 0, 100);
+    size_t sealed_size = sizeof(sgx_sealed_data_t) + sizeof(char)*100;
+    uint8_t* sealed_data = (uint8_t*)malloc(sealed_size);
+    int i;
+	char unsealed[100];
+
+    sgx_status_t ecall_status;
+    status = seal(global_eid, &ecall_status,
+            (uint8_t*)ptr, 100*sizeof(char), //plain text and plaintext len???
+            (sgx_sealed_data_t*)sealed_data, sealed_size); //sealed data and sealed ??
+
+    if (!is_ecall_successful(status, "Sealing failed :(", ecall_status)) {
+        return 1;
+    }
+    
+    
+    printf("sealed_size = %lu\n", sealed_size);
+    for(i=0; i<sealed_size; i++){
+    	printf("%d ", sealed_data[i]);
+    }
+	printf("\n");
+   
+    status = unseal(global_eid, &ecall_status,
+            (sgx_sealed_data_t*)sealed_data, sealed_size,
+            (uint8_t*)unsealed, 100*sizeof(char));
+
+    if (!is_ecall_successful(status, "Unsealing failed :(", ecall_status)) {
+        return 1;
+    }
+
+    std::cout << "Seal round trip success! Receive back " << unsealed << std::endl;
+
+	printf("BUFFERLINE*********************************************\n");
+    status = seal(global_eid, &ecall_status,
+            (uint8_t*)ptr, 100*sizeof(char), //plain text and plaintext len???
+            (sgx_sealed_data_t*)sealed_data, sealed_size); //sealed data and sealed ??
+
+    if (!is_ecall_successful(status, "Sealing failed :(", ecall_status)) {
+        return 1;
+    }
+    
+    
+    printf("sealed_size = %lu\n", sealed_size);
+    for(i=0; i<sealed_size; i++){
+    	printf("%d ", sealed_data[i]);
+    }
+	printf("\n");
+   
+    status = unseal(global_eid, &ecall_status,
+            (sgx_sealed_data_t*)sealed_data, sealed_size,
+            (uint8_t*)unsealed, 100*sizeof(char));
+
+    if (!is_ecall_successful(status, "Unsealing failed :(", ecall_status)) {
+        return 1;
+    }
+
+    std::cout << "Seal round trip success! Receive back " << unsealed << std::endl;
+    */
+    
+	//#####################################################
+    
+    
+     /*
+    int id = 1;
     char name[] = "prodName";
     
     Product* p = createProduct(id, name, 0);

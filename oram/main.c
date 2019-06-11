@@ -390,7 +390,6 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 }
 
 
-
 void testcode(){
 
 	char d[MAX_BLOCK_SIZE];
@@ -433,6 +432,7 @@ void testcode(){
 	print_storage(test);
 	
 	Bucket elems[test.height];
+
 	
 	get_buckets(&test, 1, elems);
 	
@@ -803,21 +803,21 @@ void SymmetricHashJoin(Storage* cust, StorageManager* custSM, Storage* order, St
 
 void testJoin(){
 	//first prepare the simulated input stream
-	Customer custs[10];
-	readCust("../dataGen/customer.csv", 10, custs);
+	Customer custs[20];
+	readCust("../dataGen/customer.csv", 20, custs);
 	
-	Order orders[20];
-	readOrder("../dataGen/order.csv", 20, orders);	
+	Order orders[80];
+	readOrder("../dataGen/order.csv", 80, orders);	
 	
-	uint8_t* cerealBox[30];
+	uint8_t* cerealBox[100];
 	
 	
 	int idx = 0, i;
 	
 	//serialize the data and place into serialized data array
-	for(i=0; i<20; i++){
+	for(i=0; i<80; i++){
 		
-		if(i<10){
+		if(i<20){
 			cerealBox[idx] = serialize(&custs[i], NULL, 1);
 			idx++;
 		}
@@ -834,7 +834,7 @@ void testJoin(){
 	Storage orderStore = create_storage();
 	StorageManager orderSM = create_manager();
 	
-	SymmetricHashJoin(&custStore, &custSM, &orderStore, &orderSM, cerealBox, 30);
+	SymmetricHashJoin(&custStore, &custSM, &orderStore, &orderSM, cerealBox, 100);
 
 }
 void test_insert_idx(){
@@ -856,6 +856,7 @@ void test_insert_idx(){
 	printf("0 / %d\n", intersect_idx(1, 7, 4, 15, 8));
 	printf("1 / %d\n", intersect_idx(7, 5, 4, 15, 8));
 	printf("0 / %d\n", intersect_idx(5, 3, 4, 15, 8));
+
 }
 
 int main(){
@@ -863,6 +864,7 @@ int main(){
 	
 
 	printf("compile\n");
+	//nutterTest();
 	
 	
 	//test_insert_idx();

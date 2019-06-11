@@ -1,21 +1,21 @@
 enclave {
 	
 	include "string.h"
-	include "../Include/tableData.h"
-	
+	//include "../Include/tableData.h"
+	include "../Include/dataStruct.hpp"
+	include "../Include/oramStructs.hpp"
     from "Sealing/Sealing.edl" import *;
-	from "MathOperators/MathOperators.edl" import *;
-	
-	from "Joins/Join.edl" import *;
-	
-	
-	from "DataMovement/ArrMove.edl" import *;
+	//from "MathOperators/MathOperators.edl" import *;
+	//from "Joins/Join.edl" import *;
+	//from "DataMovement/ArrMove.edl" import *;
 	
     trusted {
         /* define ECALLs here. */
         public int generate_random_number(void);
-        public int enclave_main([user_check] int* ptr);
+        public int enclave_main([user_check] Storage* ptr);
         public void enclave_fill_mem(void);
+        public void ecall_sjoin([user_check]Storage* cust, [user_check]Storage* order, [user_check]uint8_t** inputArr, int len);
+        public void ecall_testStruct([user_check] testB* obj);
         //public void ecall_print_block([user_check]Block* root);
 
     };
@@ -23,6 +23,7 @@ enclave {
     untrusted {
         /* define OCALLs here. */
         void ocall_print([user_check]const char* str);
+        void ocall_println([user_check]const char* str);
         void ocall_print_int(size_t a);
         int ocall_add(int a, int b);
     };

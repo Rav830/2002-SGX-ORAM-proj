@@ -175,7 +175,6 @@ int place_block_in_storage(Storage* toPlace, Block data, int index){
 
 }
 
-
 //all this really does is set the pmbid to be all -1 for later, otherwise it sets things to 0 just to be helpful
 //initialize the pm locations to 
 StorageManager create_manager(){
@@ -191,7 +190,6 @@ StorageManager create_manager(){
 	return retval;
 
 }
-
 
 int add_bid(StorageManager* lookIn, int bid){
 	int i;

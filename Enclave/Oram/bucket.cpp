@@ -1,6 +1,7 @@
 #include "bucket.hpp"
 #include "config.h"
 #include "block.hpp"
+#include "../printFunc.hpp"
 //#include <stdio.h>
 
 Bucket create_dummy_bucket(){
@@ -17,7 +18,7 @@ Bucket create_dummy_bucket(){
 
 }
 
-/*
+
 void print_bucket(Bucket toPrint){
 	
 	int i, j;
@@ -54,7 +55,7 @@ void print_bucket_no_dummy(Bucket toPrint){
 
 
 }
-*/
+
 
 //@param input: the block to try to assign to the bucket placeIn
 //return: -1 for failure (i.e bucket is full of non dummy blocks

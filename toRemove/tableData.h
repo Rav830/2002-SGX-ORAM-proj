@@ -6,7 +6,7 @@
 typedef struct{
 	int id;
 	char *name;
-} Customer;
+} CustomerOld;
 
 typedef struct{
 	int id;

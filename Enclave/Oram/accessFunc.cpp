@@ -1,7 +1,37 @@
-#include "storage.hpp"
-#include "config.h"
+#include "storage.hpp" //cheeky way to include the structs and some functions 
+//#include "../../Includconfig.h"
+#include "block.hpp" //for the block functions
+#include "bucket.hpp" // for the bucket functions 
+#include "../Enclave_t.h"
+#include <sgx_trts.h>
+#include "../printFunc.hpp"
 
-#include <math.h>
+//#include <math.h>
+
+
+int rdRand(){
+	int val;
+	sgx_read_rand((unsigned char*)&val, 4);
+	return val;
+}
+
+int seed = 1;
+int lcg(){
+	
+	seed = (7 * seed + 25) % 2147483644;
+
+	return seed;
+}
+
+int rand(){
+	//int retval = rdRand();
+	int retval = lcg();
+	//convert to a positive number if it is negative
+	if(retval < 0){
+		retval *= -1;
+	}
+	return retval;
+}	
 
 
 int getpmID(StorageManager* oramSM, int bid){
@@ -38,16 +68,26 @@ int intersect_idx(int leafOne, int leafTwo, int height, int numBuckets, int leav
 
 
 Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramSM){
+	//printf("printing block\n");
+	int i,j,k;
+	
+	/*printf("Trying to store \n");	
+	for(i=0; i<MAX_BLOCK_SIZE; i++){
+		printf("%d ", data->data[i]);
+	}
+	printf("\n");
+	*/
+	//printf("ORAM Stash IDX: %d\n", oramSM->stashIDX);
+	
 	int idx = oramSM->pmIDX[pmID];
 	//generate a new index for the data
 	int newidx = rand()%oram->leaves;
-	//printf("new location: %d\n", newidx);
 	
+	//printf("new location: %d\n", newidx);
 	
 	//read in one path and place the contents into the stash Note: we executed TREE_HEIGHT*MAX_BUCKET_SIZE block reads atm
 	Bucket path[oram->height];
 	get_buckets(oram, idx, path);
-	int i,j,k;
 	
 	//for each bucket
 	for(i=0; i<oram->height; i++){
@@ -62,7 +102,12 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 		}
 	}
 	
-
+/*	printf("stuff in stash before op\n");
+	for(i=0; i<MAX_BLOCK_SIZE; i++){
+		printf("%d ", oramSM->stash[oramSM->stashIDX].data[i]);
+	}
+	printf("\n");
+*/
 	Block retval = create_dummy_block();
 	int saved = 0;
 	//read
@@ -76,13 +121,14 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 			}
 		}
 	}
-	
-	
+
+	//printf("ORAM Stash IDX: %d\n", oramSM->stashIDX);
 	//data modification
 	if(op == ORAM_WRITE || op == ORAM_APPEND){
 		//write (i.e. overwrite with new data)
 			//make sure that data is the proper array
 		if(op == ORAM_WRITE){
+			printf("Hit Write\n");
 			for(i = 0; i<oramSM->stashIDX; i++){
 				if(oramSM->stash[i].data[0] == oramSM->pmBID[pmID]){
 					//we found the data, let overwrite it.
@@ -96,6 +142,7 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 				}
 			}
 		}
+	
 		//append
 		//on append we write the first 64 valid elements into the block on the array.
 		if(op==ORAM_APPEND){
@@ -133,6 +180,8 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 				}
 			}
 		}
+
+
 		//if writing and block is not in the stash, then assume it was never in the tree to begin with and add it to the stash
 		//this applies to either append or write
 		if(saved == 0){
@@ -145,7 +194,26 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 		}
 	
 		
-	}	
+	}
+	
+	
+
+	
+	//print_stash(oramSM, 0);
+	/*printf("stuff in data again\n");
+	for(i=0; i<MAX_BLOCK_SIZE; i++){
+		printf("%d ", data->data[i]);
+	}
+	printf("\n");
+	
+	printf("stuff in stash\n");
+	for(i=0; i<MAX_BLOCK_SIZE; i++){
+		printf("%d ", oramSM->stash[oramSM->stashIDX-1].data[i]);
+	}
+	printf("\n");
+	*/
+	//printf("test print: %d\n", oramSM->stash[oramSM->stashIDX-1].data[0]);	
+	//printf("ORAM Stash IDX: %d\n", oramSM->stashIDX);
 	//Now that the reading is done we can save the new index into the position map
 	oramSM->pmIDX[pmID] = newidx;
 	

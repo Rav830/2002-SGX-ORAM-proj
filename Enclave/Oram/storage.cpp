@@ -3,6 +3,7 @@
 #include "block.hpp"
 #include <math.h>
 #include "Enclave_t.h"
+#include "../printFunc.hpp"
 //#include <stdio.h>
 //#include <stdint.h>
 
@@ -25,7 +26,20 @@ Storage create_storage(){
 	return retval;
 
 }
-/*
+void init_storage(Storage* retval){
+	retval->leaves = INIT_STORAGE_ELEMS;
+	retval->height = log(retval->leaves)/log(2)+1;
+	retval->numBuckets = (int)(pow(2, retval->height)-1);
+	
+	int i;
+	for(i=0; i<retval->numBuckets; ++i){
+		
+		retval->allBuckets[i] = create_dummy_bucket();	
+	
+	}
+
+}
+
 void print_storage(Storage toPrint){
 	
 	int i;
@@ -44,7 +58,7 @@ void print_storage_no_dummy(Storage toPrint){
 	}
 
 }
-*/
+
 int idxToParentIndex(int index){
 	return (((int)index/2)*3) + 1;
 }
@@ -189,6 +203,8 @@ StorageManager create_manager(){
 		retval.pmIDX[i] = 0;//rand()%HASH_RANGE;
 	}
 	
+	
+	
 	return retval;
 
 }
@@ -221,7 +237,7 @@ int look_up_bid(StorageManager* lookIn, int bid){
 	}
 	return -1;		
 }
-/*
+
 void print_stash(StorageManager* lookIn, int printDummy){
 	
 	int i;
@@ -237,5 +253,15 @@ void print_stash(StorageManager* lookIn, int printDummy){
 	}
 
 }
-*/
+
+void print_pm(StorageManager* toPrint){
+	printf("(BID, IDX)\n");
+	int i;
+	for(i =0; i<PM_SIZE; i++){
+		printf("(%d, %d)\n", toPrint->pmBID[i], toPrint->pmIDX[i]);
+	
+	}
+
+}
+
 

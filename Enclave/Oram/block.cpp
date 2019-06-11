@@ -1,6 +1,8 @@
 #include "block.hpp"
-#include "config.h"
+//#include "../../Include/oramStructs.hpp"
+//#include "config.h"
 #include "Enclave_t.h"
+#include "../printFunc.hpp"
 
 
 int cnt = 0;
@@ -28,7 +30,8 @@ Block create_block(uint8_t bid, uint8_t data[]){
 Block create_dummy_block(){
 	Block retval;
 	memset(retval.data, 0, MAX_BLOCK_SIZE);
-	/* 
+	retval.data[0] = HASH_RANGE;
+	/*
 	//retval.bid = -1;
 	retval.data[0] = (rand()%(255-HASH_RANGE) )+ HASH_RANGE ;
 	int i;
@@ -43,7 +46,7 @@ Block create_dummy_block(){
 
 }
 
-/*
+
 void print_block(Block toPrint){
 	int j;
 	printf("%d ", toPrint.data[0]);
@@ -51,4 +54,4 @@ void print_block(Block toPrint){
 		printf("%c", toPrint.data[j]);
 	}
 }
-*/
+

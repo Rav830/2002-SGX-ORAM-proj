@@ -1,5 +1,9 @@
+///////////////////////
+// Currently Unused
+//////////////
+
 #include "Enclave_t.h"
-#include "../../Include/tableData.h"
+#include "../../Include/data.hpp"
 #include "string.h"
 #include "sgx_trts.h"
 #include "sgx_tseal.h"

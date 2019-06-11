@@ -4,7 +4,7 @@ import random
 fake = Faker()
 fake.seed(4321)
 
-numCustomers = 10
+numCustomers = 20
 numOrders = 200
 
 
