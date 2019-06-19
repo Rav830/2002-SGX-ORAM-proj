@@ -8,9 +8,9 @@
 #include "printFunc.hpp"
 
 char* custToStr(Customer c){
-	char* retval = (char*) malloc(64*sizeof(char));
+	char* retval = (char*) malloc(TUPLE_SIZE*sizeof(char));
 	
-	snprintf(retval, 64, "%d,%s,%d", c.id, c.name, c.expireTime);
+	snprintf(retval, TUPLE_SIZE, "%d,%s,%d", c.id, c.name, c.expireTime);
 	
 	return retval;
 
@@ -18,9 +18,9 @@ char* custToStr(Customer c){
 
 
 char* orderToStr(Order c){
-	char* retval = (char*) malloc(64*sizeof(char));
+	char* retval = (char*) malloc(TUPLE_SIZE*sizeof(char));
 	
-	snprintf(retval, 64, "%d,%s,%d", c.id, c.name, c.expireTime);
+	snprintf(retval, TUPLE_SIZE, "%d,%s,%d", c.id, c.name, c.expireTime);
 	
 	return retval;
 
@@ -29,8 +29,8 @@ char* orderToStr(Order c){
 uint8_t* serialize(Customer* c, Order* o, int isCust){
 
 
-	char* retval = (char*) malloc(64 * sizeof(uint8_t));
-	memset(retval, 0, 64);
+	char* retval = (char*) malloc(TUPLE_SIZE * sizeof(uint8_t));
+	memset(retval, 0, TUPLE_SIZE);
 	/*int i;
 	printf("Serializing pre save \n");
 	for(int i=0; i<64; i++){
@@ -40,14 +40,14 @@ uint8_t* serialize(Customer* c, Order* o, int isCust){
 */
 	if(isCust){
 		char* tmp = custToStr(*c);
-		snprintf(retval, 64, "+,%s", tmp);
+		snprintf(retval, TUPLE_SIZE, "+,%s", tmp);
 		
 		free(tmp);
 		
 	}
 	else{
 		char* tmp = orderToStr(*o);
-		snprintf(retval, 64, "-,%s", tmp);
+		snprintf(retval, TUPLE_SIZE, "-,%s", tmp);
 		
 		free(tmp);
 	}
@@ -62,9 +62,9 @@ uint8_t* serialize(Customer* c, Order* o, int isCust){
 }
 
 void deserialize(uint8_t* cereal, Customer* c, Order* o, int isCust){
-	char* line = (char*) malloc(64*sizeof(char));
+	char* line = (char*) malloc(TUPLE_SIZE*sizeof(char));
 	char* end;
-	memcpy(line, (char*)cereal, 64);
+	memcpy(line, (char*)cereal, TUPLE_SIZE);
 	
 	strtok(line,",");
 
@@ -90,11 +90,11 @@ void deserialize(uint8_t* cereal, Customer* c, Order* o, int isCust){
 uint8_t* serializeWithHash(Customer* c, Order* o, int isCust){
 
 
-	char* retval = (char*) malloc(65 * sizeof(uint8_t));
+	char* retval = (char*) malloc( (TUPLE_SIZE+1) * sizeof(uint8_t));
 
 	if(isCust){
 		char* tmp = custToStr(*c);
-		snprintf((retval+1), 64, "+,%s", tmp);
+		snprintf((retval+1), TUPLE_SIZE, "+,%s", tmp);
 		
 		retval[0] = hash((uint8_t*)retval);
 		
@@ -103,7 +103,7 @@ uint8_t* serializeWithHash(Customer* c, Order* o, int isCust){
 	}
 	else{
 		char* tmp = orderToStr(*o);
-		snprintf( (retval+1), 64, "-,%s", tmp);
+		snprintf( (retval+1), TUPLE_SIZE, "-,%s", tmp);
 		retval[0] = hash((uint8_t*)retval);
 		free(tmp);
 	}	
@@ -111,9 +111,9 @@ uint8_t* serializeWithHash(Customer* c, Order* o, int isCust){
 }
 
 void deserializeWithHash(uint8_t* cereal, Customer* c, Order* o, int isCust){
-	char* line = (char*) malloc(65*sizeof(char));
+	char* line = (char*) malloc( (TUPLE_SIZE+1)*sizeof(char));
 	char* end;
-	strncpy(line, (char*)cereal, 65);
+	strncpy(line, (char*)cereal, (TUPLE_SIZE+1));
 	
 	strtok(line,",");
 
@@ -158,7 +158,7 @@ int hash(uint8_t* str)
     int hash = 6969;
     int i, commaFlag = 0;
 	
-	for(i = 0; i<65; i++){
+	for(i = 0; i< (TUPLE_SIZE+1); i++){
 		if(str[i] == ((int)',')){
 			commaFlag++;
 		}

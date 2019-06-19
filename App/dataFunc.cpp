@@ -44,7 +44,7 @@ void readOrder(char* filename, int numLines, Order* retval){
 }
 
 char* custToStr(Customer c){
-	char* retval = (char*) malloc(64*sizeof(char));
+	char* retval = (char*) malloc(TUPLE_SIZE*sizeof(char));
 	
 	sprintf(retval, "%d,%s,%d", c.id, c.name, c.expireTime);
 	
@@ -54,7 +54,7 @@ char* custToStr(Customer c){
 
 
 char* orderToStr(Order c){
-	char* retval = (char*) malloc(64*sizeof(char));
+	char* retval = (char*) malloc(TUPLE_SIZE*sizeof(char));
 	
 	sprintf(retval, "%d,%s,%d", c.id, c.name, c.expireTime);
 	
@@ -65,7 +65,7 @@ char* orderToStr(Order c){
 uint8_t* serialize(Customer* c, Order* o, int isCust){
 
 
-	char* retval = (char*) malloc(64 * sizeof(uint8_t));
+	char* retval = (char*) malloc(TUPLE_SIZE * sizeof(uint8_t));
 
 	if(isCust){
 		char* tmp = custToStr(*c);
@@ -84,9 +84,9 @@ uint8_t* serialize(Customer* c, Order* o, int isCust){
 }
 
 void deserialize(uint8_t* cereal, Customer* c, Order* o, int isCust){
-	char* line = (char*) malloc(64*sizeof(char));
+	char* line = (char*) malloc(TUPLE_SIZE*sizeof(char));
 	char* end;
-	memcpy(line, (char*)cereal, 64);
+	memcpy(line, (char*)cereal, TUPLE_SIZE);
 	
 	strtok(line,",");
 
@@ -112,7 +112,7 @@ void deserialize(uint8_t* cereal, Customer* c, Order* o, int isCust){
 uint8_t* serializeWithHash(Customer* c, Order* o, int isCust){
 
 
-	char* retval = (char*) malloc(65 * sizeof(uint8_t));
+	char* retval = (char*) malloc( (TUPLE_SIZE+1) * sizeof(uint8_t));
 
 	if(isCust){
 		char* tmp = custToStr(*c);
@@ -133,7 +133,7 @@ uint8_t* serializeWithHash(Customer* c, Order* o, int isCust){
 }
 
 void deserializeWithHash(uint8_t* cereal, Customer* c, Order* o, int isCust){
-	char* line = (char*) malloc(65*sizeof(char));
+	char* line = (char*) malloc((TUPLE_SIZE+1)*sizeof(char));
 	char* end;
 	strcpy(line, (char*)cereal);
 	
@@ -180,7 +180,7 @@ int hash(uint8_t* str)
     int hash = 5381;
     int i, commaFlag = 0;
 	
-	for(i = 0; i<65; i++){
+	for(i = 0; i<(TUPLE_SIZE+1); i++){
 		if(str[i] == ((int)',')){
 			commaFlag++;
 		}

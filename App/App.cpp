@@ -154,7 +154,7 @@ int main(int argc, char const *argv[]) {
 	printf("B addr: %p\n", (void*)(&tObj));
 	printf("A addr: %p\n", (void*)(&tObj.d));
     */
-    //status = enclave_main(global_eid, &retval, &justCause);
+    status = enclave_main(global_eid, &retval, &justCause);
     
     if(status != SGX_SUCCESS){
 		return 1;

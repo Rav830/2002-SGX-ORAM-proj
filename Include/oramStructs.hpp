@@ -10,6 +10,8 @@
 typedef struct{
 	//int bid;
 	uint8_t data[MAX_BLOCK_SIZE];
+	uint8_t init_vec[12];
+	uint8_t mac[16];
 
 } Block; 
 

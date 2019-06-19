@@ -11,7 +11,7 @@
 //}Bucket;
 
 
-Bucket create_dummy_bucket();
+Bucket create_dummy_bucket(int doEncrypt);
 int place_block(Block input, Bucket* placeIn);
 void print_bucket(Bucket toPrint);
 void print_bucket_no_dummy(Bucket toPrint);

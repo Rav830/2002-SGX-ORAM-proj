@@ -46,7 +46,7 @@ Block block_from_serialized(uint8_t* data){
 	//transfer this data to one of the right size
 	uint8_t bData[MAX_BLOCK_SIZE];
 	memset(bData, 0, MAX_BLOCK_SIZE);
-	memcpy(bData, data, 64);
+	memcpy(bData, data, TUPLE_SIZE);
 	return create_block(id, bData);
 }
 
@@ -332,7 +332,7 @@ void SymmetricHashJoin(Storage* cust, StorageManager* custSM, Storage* order, St
 				//This block is valid now loop and do a join if the id's match
 				
 				int j;
-				for(j = 1; j<MAX_BLOCK_SIZE && lookIn.data[j]; j = j+64){
+				for(j = 1; j<MAX_BLOCK_SIZE && lookIn.data[j]; j = j+TUPLE_SIZE){
 					//deserialize the data located here into tmp
 					deserialize( (lookIn.data+j) , NULL, &tmpO, 0);
 					if( tmpO.id == tmpC.id){
@@ -365,7 +365,7 @@ void SymmetricHashJoin(Storage* cust, StorageManager* custSM, Storage* order, St
 				//This block is valid now loop and do a join if the id's match
 				
 				int j;
-				for(j = 1; j<MAX_BLOCK_SIZE && lookIn.data[j]; j = j+64){
+				for(j = 1; j<MAX_BLOCK_SIZE && lookIn.data[j]; j = j+TUPLE_SIZE){
 					//deserialize the data located here into tmp
 					deserialize( (lookIn.data+j) , &tmpC, NULL, 1);
 					if( tmpO.id == tmpC.id){
@@ -438,8 +438,33 @@ void ecall_sjoin(Storage* cust, Storage* order, uint8_t** inputArr, int len){
 	printf("PM: ===\n");
 	print_pm(&custSM);
 	*/
+
+
+	/*for(i=0; i<MAX_BLOCK_SIZE; i++){
+		printf("%c ", cust->allBuckets[0].blocks[0].data[i]);
 	
+	}
+	
+	printf("**Buff Line**\n");
+	encrypt_block(&(cust->allBuckets[0].blocks[0]), 1);
+	
+	for(i=0; i<MAX_BLOCK_SIZE; i++){
+		printf("%c ", cust->allBuckets[0].blocks[0].data[i]);
+	
+	}
+	printf("**Buff Line**\n");
+	
+	decrypt_block(&(cust->allBuckets[0].blocks[0]));
+	for(i=0; i<MAX_BLOCK_SIZE; i++){
+		printf("%c ", cust->allBuckets[0].blocks[0].data[i]);
+	
+	}
+	printf("**Buff Line**\n");
+	*/
 	SymmetricHashJoin(cust,&custSM, order, &orderSM, inputArr,len);
+	
+
+	
 	printf("<== Exiting enclave\n");
 }
 
@@ -454,7 +479,9 @@ int enclave_main(Storage* ptr) {
 	
 	//storage_test(ptr);
 	//access_func_test(ptr);
-	//encryption_test();	
+	//encryption_test();
+	
+	//encryptBlock_test();	
 	//rand_test();
 	//printf("Rand: %d \n", rand());
 	//printTest();	

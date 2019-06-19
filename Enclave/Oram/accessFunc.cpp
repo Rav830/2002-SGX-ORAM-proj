@@ -24,8 +24,8 @@ int lcg(){
 }
 
 int rand(){
-	//int retval = rdRand();
-	int retval = lcg();
+	int retval = rdRand();
+	//int retval = lcg();
 	//convert to a positive number if it is negative
 	if(retval < 0){
 		retval *= -1;
@@ -93,7 +93,15 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 	for(i=0; i<oram->height; i++){
 		//for each block in bucket
 		for(j=0; j<MAX_BUCKET_SIZE; j++){
-			//store in stash if it is valid
+			
+			/*printf("Printing Block from access\n");
+			for(k=0; k<MAX_BLOCK_SIZE; k++){
+				printf("%d ", path[i].blocks[j].data[k]);
+				
+			}
+			printf("\n");
+			*/
+			//store in stash if it is valid			
 			if(path[i].blocks[j].data[0] < HASH_RANGE){
 				//what do I do if the element is already in the stash???
 				oramSM->stash[oramSM->stashIDX] = path[i].blocks[j];
@@ -108,7 +116,7 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 	}
 	printf("\n");
 */
-	Block retval = create_dummy_block();
+	Block retval; //= create_dummy_block();
 	int saved = 0;
 	//read
 	if(op == ORAM_READ){
@@ -157,7 +165,7 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 					saved = 1;
 					int p, k;
 					//search for an open spot
-					for(p=1; p <= MAX_BLOCK_SIZE - 64; p = p + 64){
+					for(p=1; p <= MAX_BLOCK_SIZE - TUPLE_SIZE; p = p + TUPLE_SIZE){
 						if(oramSM->stash[i].data[p] == 0){
 							//found the index let's shove the data in
 							break;
@@ -165,13 +173,13 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 					}
 					//printf("The index found is: %d\n", p);
 					//error check for whether we can't fit an element into the block
-					if(p > MAX_BLOCK_SIZE - 64){
+					if(p > MAX_BLOCK_SIZE - TUPLE_SIZE){
 						ocall_print("\n\nWe exceeded the number of elements in this block, Please increase the size of the block or change the hashing strategy\n\n");
 						abort();
 					
 					}
 				
-					for(k=1; k < 65; k++){
+					for(k=1; k < (TUPLE_SIZE+1) ; k++){
 						oramSM->stash[i].data[p] = data->data[k];
 						p++;
 					}
@@ -187,7 +195,7 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 		if(saved == 0){
 			//printf("making a new save\n");
 			memset(oramSM->stash[oramSM->stashIDX].data, 0, MAX_BLOCK_SIZE);
-			for(j=0; j<65; j++){
+			for(j=0; j<(TUPLE_SIZE+1); j++){
 				oramSM->stash[oramSM->stashIDX].data[j] = data->data[j];
 			}
 			oramSM->stashIDX += 1;
@@ -221,7 +229,7 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 
 	Bucket newPath[oram->height];
 	for(i=0; i<oram->height; i++){
-		newPath[i] = create_dummy_bucket();
+		newPath[i] = create_dummy_bucket(0);
 	}
 	
 	int breakLoop = 0, count = 0, leafIDX, numMatch;

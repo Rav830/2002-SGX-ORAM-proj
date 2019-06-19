@@ -7,6 +7,7 @@
 //#include <stdio.h>
 //#include <stdint.h>
 
+int counter[256];
 
 Storage create_storage(){
 	
@@ -18,7 +19,7 @@ Storage create_storage(){
 	int i;
 	for(i=0; i<retval.numBuckets; ++i){
 		
-		retval.allBuckets[i] = create_dummy_bucket();	
+		retval.allBuckets[i] = create_dummy_bucket(1);	
 	
 	}
 	
@@ -34,7 +35,7 @@ void init_storage(Storage* retval){
 	int i;
 	for(i=0; i<retval->numBuckets; ++i){
 		
-		retval->allBuckets[i] = create_dummy_bucket();	
+		retval->allBuckets[i] = create_dummy_bucket(1);	
 	
 	}
 
@@ -71,31 +72,68 @@ int numLeaves(int numBuckets){
 	return (int)((numBuckets-1)*2/3);
 }
 
+
+
 //This read will logically evict and remove the data from the tree structure.
 //When a write back occurs that data will be replaced
 void get_buckets(Storage* collectFrom, int index, Bucket* retval){
+
+
 	
 	//static Bucket retval[3];
 	
 	//let's make sure that the index given is correct
 	
-	if(index >= collectFrom->leaves){
+	if(index >= collectFrom->leaves || index <= -1){
 		ocall_print("I received a index that is greater than the number of entries in this tree\n");
 		abort();
 	}
 	
+
 	//Collect the elements into the retval
 	int i = collectFrom->height-1;
 	int treeIdx = collectFrom->numBuckets - collectFrom->leaves + index;
 	while (treeIdx > -1 && i > -1){
+		
 		retval[i] = collectFrom->allBuckets[treeIdx];
+		int j;
+		for(j = 0; j<MAX_BUCKET_SIZE; j++){
+			decrypt_block( &(retval[i].blocks[j]) );
+		}
 		
 		//go up the tree to the parent
 		treeIdx = ((treeIdx+1)>>1)-1;
 		i--;
 	}
 	
+	/*
+
+	printf("===================\nPrinting Blocks collected from tree\n");
+	//for each bucket
+	int j, k;
+		for(k=0; k<256; k++){
+		counter[k] = 0;
+	}
+	for(i = 0; i<=collectFrom->height-1; i++){
+		//for each block
+		for(j = 0; j<MAX_BUCKET_SIZE; j++){
+			//reset a counter to summarize the blocks
+			//memset(counter, 0 , 256);
+			for(k =0; k<MAX_BLOCK_SIZE; k++){
+				counter[retval[i].blocks[j].data[k]]++;
+			}
+			
+			for(k=0; k<256; k++){
+				if(counter[k]){
+					printf("%d:%d\t", k, counter[k]);
+				}
+				counter[k] = 0;
+			}
+			printf("\n===\n===\n");
+			
+		}
 	
+	}
 	
 	
 	/*retval[0] = collectFrom.allBuckets[0];
@@ -121,16 +159,136 @@ void get_buckets(Storage* collectFrom, int index, Bucket* retval){
 //set the buckets in the pointer buckets to the right value in the path
 //Note Bucket should be ordered from top of path to leaf
 void set_buckets(Storage* toPlace, int index, Bucket* buckets){
+
+
+	/*
+	printf("===================\nPrinting Blocks before encryption\n");
+	//for each bucket
 	
-	int i = toPlace->height-1;
+			for(k=0; k<256; k++){
+		counter[k] = 0;
+	}
+
+	for(i = 0; i<=toPlace->height-1; i++){
+		//for each block
+		for(j = 0; j<MAX_BUCKET_SIZE; j++){
+			//reset a counter to summarize the blocks
+			//memset(counter, 0 , 256);
+			for(k =0; k<MAX_BLOCK_SIZE; k++){
+				counter[buckets[i].blocks[j].data[k]]++;
+			}
+			
+			for(k=0; k<256; k++){
+				if(counter[k]){
+					printf("%d:%d\t", k, counter[k]);
+				}
+				counter[k] = 0;
+			}
+			//memset(counter, 0 , 256);
+			printf("\n===\n===\n");
+			
+		}
+	
+	}
+	
+	*/
+	//let's pre encrypt all the data before copying it back out
+
+	int i, j, k;
+	for(j = 0; j<=toPlace->height-1; j++){
+		for(k = 0; k<MAX_BUCKET_SIZE; k++){
+			encrypt_block( &(buckets[j].blocks[k]) );
+		}
+	}
+	/*
+		printf("===================\nPrinting Blocks after encryption\n");
+	//for each bucket
+
+	for(i = 0; i<=toPlace->height-1; i++){
+		//for each block
+		for(j = 0; j<MAX_BUCKET_SIZE; j++){
+			//reset a counter to summarize the blocks
+			//memset(counter, 0 , 256);
+			for(k =0; k<MAX_BLOCK_SIZE; k++){
+				counter[buckets[i].blocks[j].data[k]]++;
+			}
+			
+			for(k=0; k<256; k++){
+				if(counter[k]){
+					printf("%d:%d\t", k, counter[k]);
+				}
+				counter[k] = 0;
+			}
+			//memset(counter, 0 , 256);
+			printf("\n===\n===\n");
+			
+		}
+	
+	}
+	*/
+	
+	i = toPlace->height-1;
 	int treeIdx = toPlace->numBuckets - toPlace->leaves + index;
 	while (treeIdx > -1 && i > -1){
+		//printf("\t\t\t Writing to: %d \t %d\n", i, treeIdx);
 		toPlace->allBuckets[treeIdx] = buckets[i];
 		
+		/*
+		for(j = 0; j<MAX_BUCKET_SIZE; j++){
+			//reset a counter to summarize the blocks
+			//memset(counter, 0 , 256);
+			for(k =0; k<MAX_BLOCK_SIZE; k++){
+				counter[ buckets[i].blocks[j].data[k]]++;
+			}
+			
+			for(k=0; k<256; k++){
+				if(counter[k]){
+					printf("%d:%d\t", k, counter[k]);
+				}
+				counter[k] = 0;
+			}
+			//memset(counter, 0 , 256);
+			printf("\n===\n===\n");
+			
+	
+	}
+		*/
 		//go up the tree to the parent
 		treeIdx = ((treeIdx+1)>>1)-1;
 		i--;
 	}
+	
+	/*printf("===================\nPrinting Blocks Sent to tree\n");
+	treeIdx = toPlace->numBuckets - toPlace->leaves + index;
+	while (treeIdx > -1){
+		printf("\t\t%d\n", treeIdx); 
+		toPlace->allBuckets[treeIdx];
+		
+				
+
+		//for each block
+		for(j = 0; j<MAX_BUCKET_SIZE; j++){
+			//reset a counter to summarize the blocks
+			//memset(counter, 0 , 256);
+			for(k =0; k<MAX_BLOCK_SIZE; k++){
+				counter[ toPlace->allBuckets[treeIdx].blocks[j].data[k]]++;
+			}
+			
+			for(k=0; k<256; k++){
+				if(counter[k]){
+					printf("%d:%d\t", k, counter[k]);
+				}
+				counter[k] = 0;
+			}
+			//memset(counter, 0 , 256);
+			printf("\n===\n===\n");
+			
+	
+	}
+		//go up the tree to the parent
+		treeIdx = ((treeIdx+1)>>1)-1;
+	}
+	*/
 	
 	/*int parentIndex = idxToParentIndex(index);
 	int leafIndex = idxToLeafIndex(index);
