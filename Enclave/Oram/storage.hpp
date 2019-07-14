@@ -43,6 +43,7 @@ typedef struct{
 StorageManager create_manager(void);
 
 int add_bid(StorageManager* lookIn, int bid);
+int remove_bid(StorageManager* lookIn, int bid);
 int look_up_bid(StorageManager* lookIn, int bid);
 void print_stash(StorageManager* lookIn, int printDummy);
 void print_pm(StorageManager* toPrint);

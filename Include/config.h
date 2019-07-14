@@ -1,9 +1,9 @@
 #ifndef ORAM_CONFIG
 #define ORAM_CONFIG
 
-#define TUPLE_SIZE 64
-#define MAX_BLOCK_SIZE 961
-#define MAX_BUCKET_SIZE 4
+#define TUPLE_SIZE 100
+#define MAX_BLOCK_SIZE 1001
+#define MAX_BUCKET_SIZE 3
 #define INIT_STORAGE_ELEMS 8
 #define INIT_STORAGE_SIZE 15
 #define HASH_RANGE 8

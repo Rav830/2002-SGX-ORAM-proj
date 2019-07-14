@@ -44,7 +44,7 @@ void print_storage(Storage justCause){
 		for (j = 0; j<MAX_BUCKET_SIZE; j++){
 			printf("Block %d\n", j);
 			for(i = 0; i<MAX_BLOCK_SIZE; i++){
-				printf("%d ", justCause.allBuckets[k].blocks[j].data[i]);
+				printf("%c ", justCause.allBuckets[k].blocks[j].data[i]);
 			}
 			printf("\n");
 		}
@@ -142,24 +142,41 @@ int main(int argc, char const *argv[]) {
     Storage custStore;// = create_storage();
     Storage orderStore;// = create_storage();
     
-    status = ecall_sjoin(global_eid, &custStore, &orderStore, cerealBox, 100);
-    /*
-    testB tObj;
-    tObj.c = 66;
-   	status = ecall_testStruct(global_eid, &tObj); 
+    int BufferSize = 209*1000;
     
-    printf("c: %d\n", tObj.c);
-    printf("a: %d\n", tObj.d.a);
-	printf("b: %d\n", tObj.d.b);
-	printf("B addr: %p\n", (void*)(&tObj));
-	printf("A addr: %p\n", (void*)(&tObj.d));
-    */
-    status = enclave_main(global_eid, &retval, &justCause);
+    char outBuffer[BufferSize];
+    memset(outBuffer, 0, BufferSize);
+    	for(i = 0; i<BufferSize; i++){
+		printf("%d ", outBuffer[i]);
+	}
     
+    status = ecall_sjoin(global_eid, &custStore, &orderStore, cerealBox, 50, outBuffer);
     if(status != SGX_SUCCESS){
 		return 1;
 	}
-	//print_storage(justCause);
+	//printf("Printing Customer\n");
+	//print_storage(custStore);
+	
+	//status = ecall_sjoin(global_eid, &custStore, &orderStore, (cerealBox+1), 1, outBuffer);
+	if(status != SGX_SUCCESS){
+		return 1;
+	}
+	//printf("Printing Customer\n");
+	//print_storage(custStore);
+	//status = ecall_sjoin(global_eid, &custStore, &orderStore, (cerealBox+2), 1, outBuffer);
+	if(status != SGX_SUCCESS){
+		return 1;
+	}
+	
+	for(i = 0; i<BufferSize; i++){
+		printf("%c", outBuffer[i]);
+	}
+	//printf("Printing Customer\n");
+	//print_storage(custStore);
+	/*printf("**********************************\n");
+	printf("Printing Order\n");
+	print_storage(orderStore);
+	*/
 	
     
     //#####################################################

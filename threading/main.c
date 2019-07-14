@@ -2,7 +2,7 @@
 #include <stdlib.h> 
 #include <unistd.h>  //Header file for sleep(). man 3 sleep for details. 
 #include <pthread.h> 
-
+#include "time.h"
 
 void* func(void* vargp){
 	sleep(1);
@@ -12,6 +12,10 @@ void* func(void* vargp){
 }
 
 int main(){
+	time_t start = time(0);
+	sleep(1);
+	int diff = (int) difftime(time(0), start);
+	printf("%d \n", diff);
 	printf("compileTest\n");
 	//pthread_t thread_id; 
 	printf("Before Thread\n"); 

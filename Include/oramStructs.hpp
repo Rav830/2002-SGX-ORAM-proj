@@ -24,6 +24,7 @@ typedef struct{
 	int numBuckets;
 	int height;
 	int leaves;
+	int initialized;
 	Bucket allBuckets[INIT_STORAGE_SIZE];//[(int)(pow(2, log(INIT_STORAGE_ELEMS)/log(2)+1)-1)];
 } Storage;
 

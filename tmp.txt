@@ -1,435 +1,360 @@
 ==> Entering enclave
-is cust
-(hash, pm, loc) (1, 0, 0)
-trying access
-is order
-(hash, pm, loc) (3, 0, 0)
-trying access
-is cust
-(hash, pm, loc) (2, 1, 0)
-trying access
-is order
-(hash, pm, loc) (3, 0, 2)
-trying access
-is cust
-(hash, pm, loc) (3, 2, 0)
-trying access
-is order
-(hash, pm, loc) (4, 1, 0)
-trying access
-is cust
+Time passed: 2 
+Eviction Count: 0 
+Time passed: 4 
+Eviction Count: 0 
+Time passed: 6 
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 8 
+Eviction Count: 0 
+Time passed: 10 
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 12 
+Eviction Count: 0 
+Time passed: 14 
 Match: 3,Larry Morales,255 <-> 3,Democrat ago stock if end place but.,148
-(hash, pm, loc) (4, 3, 0)
-trying access
-is order
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 16 
 Match: 1,Jacob Stein,255 <-> 1,Material I accept different south pattern both.,138
-(hash, pm, loc) (2, 2, 0)
-trying access
-is cust
-(hash, pm, loc) (5, 4, 0)
-trying access
-is order
-(hash, pm, loc) (7, 3, 0)
-trying access
-is cust
-(hash, pm, loc) (6, 5, 0)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 18 
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 20 
+Eviction Count: 0 
+Time passed: 22 
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 24 
 Match: 0,Jason Brown,255 <-> 0,At those clearly resource finish role method.,221
-(hash, pm, loc) (1, 4, 0)
-trying access
-is cust
-(hash, pm, loc) (7, 6, 0)
-trying access
-is order
-(hash, pm, loc) (5, 5, 0)
-trying access
-is cust
-(hash, pm, loc) (0, 7, 0)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 26 
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 28 
+Eviction Count: 0 
+Time passed: 30 
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 32 
 Match: 5,Brian Moore,255 <-> 5,When hospital civil growth.,199
-(hash, pm, loc) (6, 6, 0)
-trying access
-is cust
-(hash, pm, loc) (1, 0, 2)
-trying access
-is order
-(hash, pm, loc) (0, 7, 0)
-trying access
-is cust
-(hash, pm, loc) (2, 1, 0)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 34 
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 36 
+Eviction Count: 0 
+Time passed: 38 
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 40 
 Match: 0,Jason Brown,255 <-> 0,Choice suffer explain several can partner.,170
-(hash, pm, loc) (1, 4, 6)
-trying access
-is cust
-(hash, pm, loc) (2, 1, 4)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 42 
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 44 
 Match: 2,Cody Brown,255 <-> 2,Later court else.,92
-(hash, pm, loc) (3, 0, 3)
-trying access
-is cust
-(hash, pm, loc) (3, 2, 1)
-trying access
-is order
-(hash, pm, loc) (2, 2, 7)
-trying access
-is cust
-(hash, pm, loc) (4, 3, 6)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 46 
+Eviction Count: 0 
+Evicting: 20,Heart evidence movement not help.,41 
+Eviction Count: 1 
+Hit Write
+Time passed: 48 
+Eviction Count: 0 
+Time passed: 50 
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 52 
 Match: 3,Larry Morales,255 <-> 3,Less past national role.,177
-(hash, pm, loc) (4, 1, 6)
-trying access
-is cust
+Eviction Count: 0 
+Time passed: 54 
 Match: 13,James Sandoval,255 <-> 13,Explain bag investment. Number fire read help.,226
-(hash, pm, loc) (5, 4, 5)
-trying access
-is order
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 56 
 Match: 10,Brian Maxwell,255 <-> 10,Ask treat left various baby.,191
-(hash, pm, loc) (2, 2, 4)
-trying access
-is cust
-(hash, pm, loc) (6, 5, 5)
-trying access
-is order
-(hash, pm, loc) (3, 0, 6)
-trying access
-is cust
+Eviction Count: 0 
+Time passed: 58 
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 60 
+Eviction Count: 0 
+Time passed: 62 
 Match: 15,Anne Davis,255 <-> 15,Attorney collection likely name prove.,48
-(hash, pm, loc) (7, 6, 1)
-trying access
-is order
+Eviction Count: 0 
+Evicting: 15,Attorney collection likely name prove.,48 
+Eviction Count: 1 
+Hit Write
+Time passed: 64 
 Match: 0,Jason Brown,255 <-> 0,Eye buy visit change party seat.,171
-(hash, pm, loc) (1, 4, 6)
-trying access
-is cust
+Eviction Count: 0 
+Time passed: 66 
 Match: 16,Miss Amanda Harris MD,255 <-> 16,After team upon every pick.,183
-(hash, pm, loc) (0, 7, 3)
-trying access
-is order
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 68 
 Match: 11,Cory Cooper,255 <-> 11,Let certainly within animal result land.,169
-(hash, pm, loc) (3, 0, 5)
-trying access
-is cust
-(hash, pm, loc) (1, 0, 1)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 70 
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 72 
 Match: 5,Brian Moore,255 <-> 5,Modern read economic.,65
-(hash, pm, loc) (6, 6, 3)
-trying access
-is cust
+Eviction Count: 0 
+Time passed: 74 
 Match: 18,Brian Lee,255 <-> 18,Food whole civil former land.,225
-(hash, pm, loc) (2, 1, 4)
-trying access
-is order
+Eviction Count: 0 
+Eviction Count: 0 
+Time passed: 76 
 Match: 13,James Sandoval,255 <-> 13,Claim court special president foot arrive.,248
-(hash, pm, loc) (5, 5, 4)
-trying access
-is cust
-(hash, pm, loc) (3, 2, 3)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 78 
+Eviction Count: 0 
+Evicting: 20,Dinner shake school wonder.,63 
+Eviction Count: 1 
+Hit Write
+Time passed: 80 
 Match: 5,Brian Moore,255 <-> 5,Woman never everyone push.,172
-(hash, pm, loc) (6, 6, 6)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 82 
 Match: 19,Kimberly Pratt,255 <-> 19,Imagine record too simply purpose all.,249
-(hash, pm, loc) (3, 0, 4)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 84 
 Match: 11,Cory Cooper,255 <-> 11,Leader truth value find word offer create learn.,133
-(hash, pm, loc) (3, 0, 5)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 86 
 Match: 16,Miss Amanda Harris MD,255 <-> 16,Future although director Mrs.,200
-(hash, pm, loc) (0, 7, 2)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 88 
 Match: 14,Brian Lester,255 <-> 14,Room ground attack.,79
-(hash, pm, loc) (6, 6, 6)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 90 
 Match: 4,Jessica Hendricks,255 <-> 4,Low scene important security difficult cultural.,122
-(hash, pm, loc) (5, 5, 7)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 92 
 Match: 16,Miss Amanda Harris MD,255 <-> 16,Chair subject base against number control book.,91
-(hash, pm, loc) (0, 7, 0)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 94 
 Match: 11,Cory Cooper,255 <-> 11,Guess strategy give fill art.,213
-(hash, pm, loc) (3, 0, 3)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 96 
 Match: 8,Daniel George,255 <-> 8,Agent community by day.,75
-(hash, pm, loc) (1, 4, 1)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 98 
 Match: 14,Brian Lester,255 <-> 14,Pay onto big already.,122
-(hash, pm, loc) (6, 6, 4)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 100 
 Match: 13,James Sandoval,255 <-> 13,Report world kid group improve option mention.,123
-(hash, pm, loc) (5, 5, 5)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 102 
 Match: 8,Daniel George,255 <-> 8,Health factor voice. Red within finish both.,171
-(hash, pm, loc) (1, 4, 5)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 104 
 Match: 7,Ruth Hoffman,255 <-> 7,Community magazine central together bed like.,197
-(hash, pm, loc) (0, 7, 1)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 106 
 Match: 3,Larry Morales,255 <-> 3,During data hope.,232
-(hash, pm, loc) (4, 1, 7)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 108 
 Match: 8,Daniel George,255 <-> 8,It again you bit suggest country help.,71
-(hash, pm, loc) (1, 4, 5)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 110 
 Match: 1,Jacob Stein,255 <-> 1,Table performance other buy show when.,161
-(hash, pm, loc) (2, 2, 1)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 112 
 Match: 0,Jason Brown,255 <-> 0,Baby system positive finish stock become.,151
-(hash, pm, loc) (1, 4, 4)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 114 
 Match: 13,James Sandoval,255 <-> 13,Age take enough yet miss interest ask.,167
-(hash, pm, loc) (5, 5, 0)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 116 
 Match: 6,Scott Baker,255 <-> 6,Move computer together think present fire.,92
-(hash, pm, loc) (7, 3, 3)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 118 
 Match: 13,James Sandoval,255 <-> 13,Manage remain now after heart save democratic.,118
-(hash, pm, loc) (5, 5, 0)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 120 
 Match: 13,James Sandoval,255 <-> 13,This city among even consider.,55
-(hash, pm, loc) (5, 5, 7)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 122 
 Match: 9,David Moody,255 <-> 9,Campaign former when arrive various step laugh.,251
-(hash, pm, loc) (2, 2, 5)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 124 
 Match: 16,Miss Amanda Harris MD,255 <-> 16,Leg option growth method.,51
-(hash, pm, loc) (0, 7, 2)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 126 
 Match: 14,Brian Lester,255 <-> 14,Democratic choose their type follow.,253
-(hash, pm, loc) (6, 6, 3)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 128 
 Match: 2,Cody Brown,255 <-> 2,Owner writer same find save brother factor.,98
-(hash, pm, loc) (3, 0, 0)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 130 
 Match: 11,Cory Cooper,255 <-> 11,Majority the speak determine.,197
-(hash, pm, loc) (3, 0, 6)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 132 
 Match: 9,David Moody,255 <-> 9,Positive four art girl real.,133
-(hash, pm, loc) (2, 2, 7)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 134 
 Match: 14,Brian Lester,255 <-> 14,With help billion teacher mind evidence image.,250
-(hash, pm, loc) (6, 6, 2)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 136 
 Match: 15,Anne Davis,255 <-> 15,Campaign his sport loss star conference.,155
-(hash, pm, loc) (7, 3, 3)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 138 
 Match: 15,Anne Davis,255 <-> 15,Third run voice production away.,44
-(hash, pm, loc) (7, 3, 6)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 140 
 Match: 4,Jessica Hendricks,255 <-> 4,Back least when situation.,67
-(hash, pm, loc) (5, 5, 3)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 142 
 Match: 6,Scott Baker,255 <-> 6,Threat control minute wind.,163
-(hash, pm, loc) (7, 3, 5)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 144 
 Match: 11,Cory Cooper,255 <-> 11,They general single stock very serve.,55
-(hash, pm, loc) (3, 0, 6)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 146 
 Match: 15,Anne Davis,255 <-> 15,Manage character rule concern approach tree.,80
-(hash, pm, loc) (7, 3, 2)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 148 
 Match: 4,Jessica Hendricks,255 <-> 4,New national somebody himself will.,80
-(hash, pm, loc) (5, 5, 6)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 150 
 Match: 18,Brian Lee,255 <-> 18,Citizen chair lose pretty throw despite top.,180
-(hash, pm, loc) (2, 2, 0)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 152 
 Match: 13,James Sandoval,255 <-> 13,Listen drug again statement option must idea.,233
-(hash, pm, loc) (5, 5, 2)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 154 
 Match: 5,Brian Moore,255 <-> 5,Public few book seek election herself.,252
-(hash, pm, loc) (6, 6, 7)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 156 
 Match: 16,Miss Amanda Harris MD,255 <-> 16,Piece hold claim so total service while.,1
-(hash, pm, loc) (0, 7, 4)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 158 
 Match: 18,Brian Lee,255 <-> 18,Charge above choice customer seek peace.,80
-(hash, pm, loc) (2, 2, 7)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 160 
 Match: 5,Brian Moore,255 <-> 5,Laugh build indicate subject figure race.,173
-(hash, pm, loc) (6, 6, 4)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 162 
 Match: 15,Anne Davis,255 <-> 15,Last others trip they building bag.,157
-(hash, pm, loc) (7, 3, 6)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 164 
 Match: 11,Cory Cooper,255 <-> 11,Artist three dog.,193
-(hash, pm, loc) (3, 0, 4)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 166 
 Match: 3,Larry Morales,255 <-> 3,Black church half ball shoulder read explain.,126
-(hash, pm, loc) (4, 1, 3)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 168 
 Match: 0,Jason Brown,255 <-> 0,Black suffer mention pull.,69
-(hash, pm, loc) (1, 4, 2)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 170 
 Match: 16,Miss Amanda Harris MD,255 <-> 16,Ball nothing strong answer there.,228
-(hash, pm, loc) (0, 7, 2)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 172 
 Match: 3,Larry Morales,255 <-> 3,Music city begin item issue.,99
-(hash, pm, loc) (4, 1, 2)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 174 
 Match: 13,James Sandoval,255 <-> 13,Than get field body wide whose standard.,174
-(hash, pm, loc) (5, 5, 0)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 176 
 Match: 17,Amy Dunn,255 <-> 17,Fire pick sea contain avoid.,232
-(hash, pm, loc) (1, 4, 6)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 178 
 Match: 3,Larry Morales,255 <-> 3,Red sea specific.,241
-(hash, pm, loc) (4, 1, 7)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 180 
 Match: 5,Brian Moore,255 <-> 5,Anything cover modern mind represent.,64
-(hash, pm, loc) (6, 6, 0)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 182 
 Match: 17,Amy Dunn,255 <-> 17,Community cost season protect political.,233
-(hash, pm, loc) (1, 4, 0)
-trying access
-is order
-(hash, pm, loc) (3, 0, 4)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 184 
+Eviction Count: 0 
+Time passed: 186 
 Match: 14,Brian Lester,255 <-> 14,Test least manager though seat yeah doctor skin.,141
-(hash, pm, loc) (6, 6, 7)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 188 
 Match: 2,Cody Brown,255 <-> 2,Color increase each door officer wall effect.,182
-(hash, pm, loc) (3, 0, 5)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 190 
 Match: 5,Brian Moore,255 <-> 5,Hospital shake above wonder most.,205
-(hash, pm, loc) (6, 6, 0)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 192 
 Match: 12,Morgan Foster,255 <-> 12,Left while deal six debate these.,67
-(hash, pm, loc) (4, 1, 5)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 194 
 Match: 1,Jacob Stein,255 <-> 1,Property them throw cultural within.,211
-(hash, pm, loc) (2, 2, 0)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 196 
 Match: 14,Brian Lester,255 <-> 14,Customer late carry speech keep event.,137
-(hash, pm, loc) (6, 6, 7)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 198 
 Match: 13,James Sandoval,255 <-> 13,Plant evening page rate best force pretty fly.,56
-(hash, pm, loc) (5, 5, 0)
-trying access
-is order
+Eviction Count: 0 
+Time passed: 200 
 Match: 4,Jessica Hendricks,255 <-> 4,Cost wonder establish.,236
-(hash, pm, loc) (5, 5, 3)
-trying access
+Eviction Count: 0 
 printing the trees for info
 
 *************************
 Customer
 Bucket 0:
 Block 0:
-	0 +,7,Ruth Hoffman,255+,16,Miss Amanda Harris MD,255
-Block 1:
 	4 +,3,Larry Morales,255+,12,Morgan Foster,255
-Block 2:
+Block 1:
 	5 +,4,Jessica Hendricks,255+,13,James Sandoval,255
-Block 3:
+Block 2:
 	6 +,5,Brian Moore,255+,14,Brian Lester,255
+Block 3:
+	7 +,6,Scott Baker,255+,15,Anne Davis,255
 Bucket 1:
 Bucket 2:
-Block 0:
-	2 +,1,Jacob Stein,255+,9,David Moody,255+,10,Brian Maxwell,255+,18,Brian Lee,255
 Bucket 3:
 Bucket 4:
 Bucket 5:
 Block 0:
-	3 +,2,Cody Brown,255+,11,Cory Cooper,255+,19,Kimberly Pratt,255
+	2 +,1,Jacob Stein,255+,9,David Moody,255+,10,Brian Maxwell,255+,18,Brian Lee,255
 Bucket 6:
 Bucket 7:
+Block 0:
+	1 +,0,Jason Brown,255+,8,Daniel George,255+,17,Amy Dunn,255
 Bucket 8:
 Bucket 9:
 Bucket 10:
-Block 0:
-	1 +,0,Jason Brown,255+,8,Daniel George,255+,17,Amy Dunn,255
 Bucket 11:
 Bucket 12:
 Bucket 13:
+Block 0:
+	3 +,2,Cody Brown,255+,11,Cory Cooper,255+,19,Kimberly Pratt,255
 Bucket 14:
 Block 0
-	7 +,6,Scott Baker,255+,15,Anne Davis,255
+	0 +,7,Ruth Hoffman,255+,16,Miss Amanda Harris MD,255
 *************************
 Order
 Bucket 0:
 Block 0:
-	7 -,15,Attorney collection likely name prove.,48-,6,Move computer together think present fire.,92-,15,Campaign his sport loss star conference.,155-,15,Third run voice production away.,44-,6,Threat control minute wind.,163-,15,Manage character rule concern approach tree.,80-,15,Last others trip they building bag.,157
-Block 1:
-	1 -,0,At those clearly resource finish role method.,221-,0,Choice suffer explain several can partner.,170-,0,Eye buy visit change party seat.,171-,8,Agent community by day.,75-,8,Health factor voice. Red within finish both.,171-,8,It again you bit suggest country help.,71-,0,Baby system positive finish stock become.,151-,0,Black suffer mention pull.,69-,17,Fire pick sea contain avoid.,232-,17,Community cost season protect political.,233
-Block 2:
-	5 -,13,Explain bag investment. Number fire read help.,226-,13,Claim court special president foot arrive.,248-,4,Low scene important security difficult cultural.,122-,13,Report world kid group improve option mention.,123-,13,Age take enough yet miss interest ask.,167-,13,Manage remain now after heart save democratic.,118-,13,This city among even consider.,55-,4,Back least when situation.,67-,4,New national somebody himself will.,80-,13,Listen drug again statement option must idea.,233-,13,Than get field body wide whose standard.,174-,13,Plant evening page rate best force pretty fly.,56-,4,Cost wonder establish.,236
-Block 3:
 	6 -,5,When hospital civil growth.,199-,5,Modern read economic.,65-,5,Woman never everyone push.,172-,14,Room ground attack.,79-,14,Pay onto big already.,122-,14,Democratic choose their type follow.,253-,14,With help billion teacher mind evidence image.,250-,5,Public few book seek election herself.,252-,5,Laugh build indicate subject figure race.,173-,5,Anything cover modern mind represent.,64-,14,Test least manager though seat yeah doctor skin.,141-,5,Hospital shake above wonder most.,205-,14,Customer late carry speech keep event.,137
+Block 1:
+	7 -,6,Move computer together think present fire.,92-,15,Campaign his sport loss star conference.,155-,15,Third run voice production away.,44-,6,Threat control minute wind.,163-,15,Manage character rule concern approach tree.,80-,15,Last others trip they building bag.,157
+Block 2:
+	0 -,16,After team upon every pick.,183-,16,Future although director Mrs.,200-,16,Chair subject base against number control book.,91-,7,Community magazine central together bed like.,197-,16,Leg option growth method.,51-,16,Piece hold claim so total service while.,1-,16,Ball nothing strong answer there.,228
+Block 3:
+	5 -,13,Explain bag investment. Number fire read help.,226-,13,Claim court special president foot arrive.,248-,4,Low scene important security difficult cultural.,122-,13,Report world kid group improve option mention.,123-,13,Age take enough yet miss interest ask.,167-,13,Manage remain now after heart save democratic.,118-,13,This city among even consider.,55-,4,Back least when situation.,67-,4,New national somebody himself will.,80-,13,Listen drug again statement option must idea.,233-,13,Than get field body wide whose standard.,174-,13,Plant evening page rate best force pretty fly.,56-,4,Cost wonder establish.,236
 Bucket 1:
 Bucket 2:
 Bucket 3:
 Bucket 4:
 Block 0:
-	3 -,20,Prove open new water.,95-,20,Heart evidence movement not help.,41-,2,Later court else.,92-,20,Dinner shake school wonder.,63-,11,Let certainly within animal result land.,169-,19,Imagine record too simply purpose all.,249-,11,Leader truth value find word offer create learn.,133-,11,Guess strategy give fill art.,213-,2,Owner writer same find save brother factor.,98-,11,Majority the speak determine.,197-,11,They general single stock very serve.,55-,11,Artist three dog.,193-,20,Activity allow according.,202-,2,Color increase each door officer wall effect.,182
-Block 1:
-	2 -,1,Material I accept different south pattern both.,138-,18,Food whole civil former land.,225-,10,Ask treat left various baby.,191-,1,Table performance other buy show when.,161-,9,Campaign former when arrive various step laugh.,251-,9,Positive four art girl real.,133-,18,Citizen chair lose pretty throw despite top.,180-,18,Charge above choice customer seek peace.,80-,1,Property them throw cultural within.,211
+	4 -,3,Democrat ago stock if end place but.,148-,3,Less past national role.,177-,3,During data hope.,232-,3,Black church half ball shoulder read explain.,126-,3,Music city begin item issue.,99-,3,Red sea specific.,241-,12,Left while deal six debate these.,67
 Bucket 5:
+Block 0:
+	2 -,1,Material I accept different south pattern both.,138-,18,Food whole civil former land.,225-,10,Ask treat left various baby.,191-,1,Table performance other buy show when.,161-,9,Campaign former when arrive various step laugh.,251-,9,Positive four art girl real.,133-,18,Citizen chair lose pretty throw despite top.,180-,18,Charge above choice customer seek peace.,80-,1,Property them throw cultural within.,211
 Bucket 6:
 Bucket 7:
 Bucket 8:
@@ -437,10 +362,10 @@ Bucket 9:
 Bucket 10:
 Bucket 11:
 Bucket 12:
-Block 0:
-	4 -,3,Democrat ago stock if end place but.,148-,3,Less past national role.,177-,3,During data hope.,232-,3,Black church half ball shoulder read explain.,126-,3,Music city begin item issue.,99-,3,Red sea specific.,241-,12,Left while deal six debate these.,67
 Bucket 13:
+Block 0:
+	1 -,0,At those clearly resource finish role method.,221-,0,Choice suffer explain several can partner.,170-,0,Eye buy visit change party seat.,171-,8,Agent community by day.,75-,8,Health factor voice. Red within finish both.,171-,8,It again you bit suggest country help.,71-,0,Baby system positive finish stock become.,151-,0,Black suffer mention pull.,69-,17,Fire pick sea contain avoid.,232-,17,Community cost season protect political.,233
 Bucket 14:
 Block 0
-	0 -,16,After team upon every pick.,183-,16,Future although director Mrs.,200-,16,Chair subject base against number control book.,91-,7,Community magazine central together bed like.,197-,16,Leg option growth method.,51-,16,Piece hold claim so total service while.,1-,16,Ball nothing strong answer there.,228
+	3 -,20,Prove open new water.,95-,2,Later court else.,92-,11,Let certainly within animal result land.,169-,19,Imagine record too simply purpose all.,249-,11,Leader truth value find word offer create learn.,133-,11,Guess strategy give fill art.,213-,2,Owner writer same find save brother factor.,98-,11,Majority the speak determine.,197-,11,They general single stock very serve.,55-,11,Artist three dog.,193-,20,Activity allow according.,202-,2,Color increase each door officer wall effect.,182
 <== Exiting enclave

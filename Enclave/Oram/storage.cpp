@@ -15,6 +15,7 @@ Storage create_storage(){
 	retval.leaves = INIT_STORAGE_ELEMS;
 	retval.height = log(retval.leaves)/log(2)+1;
 	retval.numBuckets = (int)(pow(2, retval.height)-1);
+	retval.initialized = 1;
 	
 	int i;
 	for(i=0; i<retval.numBuckets; ++i){
@@ -31,7 +32,7 @@ void init_storage(Storage* retval){
 	retval->leaves = INIT_STORAGE_ELEMS;
 	retval->height = log(retval->leaves)/log(2)+1;
 	retval->numBuckets = (int)(pow(2, retval->height)-1);
-	
+	retval->initialized = 1;
 	int i;
 	for(i=0; i<retval->numBuckets; ++i){
 		
@@ -381,6 +382,21 @@ int add_bid(StorageManager* lookIn, int bid){
 	}
 	
 	ocall_print("Ran out of space in the position map\n\n");
+	
+	return -1;
+
+}
+
+int remove_bid(StorageManager* lookIn, int bid){
+	int i;
+	for(i=0; i<PM_SIZE; i++){	
+		if(lookIn->pmBID[i] == bid){
+			lookIn->pmBID[i] = -1;
+			return 1;
+		}
+	}
+	
+	ocall_print("failed to find the block id in this ORAM Stroage Manager\n\n");
 	
 	return -1;
 

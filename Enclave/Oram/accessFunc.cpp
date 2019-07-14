@@ -5,8 +5,12 @@
 #include "../Enclave_t.h"
 #include <sgx_trts.h>
 #include "../printFunc.hpp"
-
+//#include "time.h"
 //#include <math.h>
+//time_t start = NULL;
+
+
+
 
 
 int rdRand(){
@@ -71,6 +75,26 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 	//printf("printing block\n");
 	int i,j,k;
 	
+	
+	/*sgx_status_t time_retval;
+	if(current_time == NULL){
+		sgx_create_pse_session();
+		time_retval = sgx_get_trusted_time(&current_time, &time_source_nonce);	
+		start_time = current_time;
+		
+	}else{
+	
+		time_retval = sgx_get_trusted_time(&current_time, &time_source_nonce);	
+	}
+	
+	//sleep for one second
+	sgx_time_t newTime = current_time+1;
+	while(current_time < newTime){
+		time_retval = sgx_get_trusted_time(&current_time, &time_source_nonce);
+	}*/
+	
+
+	//printf("Diff time: %lld \n", current_time - start_time);
 	/*printf("Trying to store \n");	
 	for(i=0; i<MAX_BLOCK_SIZE; i++){
 		printf("%d ", data->data[i]);
@@ -110,6 +134,8 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 		}
 	}
 	
+	//evict_tuples_from_stash(&(oram->stash));
+	
 /*	printf("stuff in stash before op\n");
 	for(i=0; i<MAX_BLOCK_SIZE; i++){
 		printf("%d ", oramSM->stash[oramSM->stashIDX].data[i]);
@@ -129,6 +155,8 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 			}
 		}
 	}
+	
+	
 
 	//printf("ORAM Stash IDX: %d\n", oramSM->stashIDX);
 	//data modification
@@ -136,7 +164,7 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 		//write (i.e. overwrite with new data)
 			//make sure that data is the proper array
 		if(op == ORAM_WRITE){
-			printf("Hit Write\n");
+			//printf("Hit Write\n");
 			for(i = 0; i<oramSM->stashIDX; i++){
 				if(oramSM->stash[i].data[0] == oramSM->pmBID[pmID]){
 					//we found the data, let overwrite it.

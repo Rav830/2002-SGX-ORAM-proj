@@ -15,6 +15,15 @@
 #include "math.h"
 
 #include <stdio.h> /* vsnprintf */
+//#include <sgx_tae_service.h>
+int current_time= 0;
+int start_time = 0;
+//sgx_time_source_nonce_t time_source_nonce;
+
+//Storage Managers kept global
+int SMinitialized = 0;
+StorageManager custSM;
+StorageManager orderSM;
 
 int generate_random_number() {
     ocall_println("Processing random number generation...");
@@ -63,7 +72,7 @@ void access_func_test(Storage* outside){
 	//printf("(hash, pm, loc) (%d, %d, %d)\n", toEnter.data[0], pm_loc, oramSM->pmIDX[pm_loc]);
 	//run a check for a failed add_bid
 	if(pm_loc+1){
-		printf("trying access\n");
+		//fprintf("trying access\n");
 		access(outside, ORAM_WRITE, &toEnter, pm_loc, &outsideSM);
 	}
 	else{
@@ -290,10 +299,10 @@ void addTuple(Customer* c, Order* o, int isCust, Storage* oram, StorageManager* 
 	uint8_t* cereal = serialize(c, o, isCust);
 	Block toEnter = block_from_serialized(cereal);
 	int pm_loc = add_bid(oramSM, toEnter.data[0]);
-	printf("(hash, pm, loc) (%d, %d, %d)\n", toEnter.data[0], pm_loc, oramSM->pmIDX[pm_loc]);
+	//printf("(hash, pm, loc) (%d, %d, %d)\n", toEnter.data[0], pm_loc, oramSM->pmIDX[pm_loc]);
 	//run a check for a failed add_bid
 	if(pm_loc+1){
-		printf("trying access\n");
+		//printf("trying access\n");
 		access(oram, ORAM_APPEND, &toEnter, pm_loc, oramSM);
 	}
 	else{
@@ -305,17 +314,19 @@ void addTuple(Customer* c, Order* o, int isCust, Storage* oram, StorageManager* 
 	free(cereal);
 }
 
-void SymmetricHashJoin(Storage* cust, StorageManager* custSM, Storage* order, StorageManager* orderSM, uint8_t** inputArr, int len){
+void SymmetricHashJoin(Storage* cust, StorageManager* custSM, Storage* order, StorageManager* orderSM, uint8_t** inputArr, int len, char* outputBuffer){
 
 	Order tmpO;
 	Customer tmpC;
-	int i, hashVal, pm;
+	int i, hashVal, pm, evicted =0;
 	for(i = 0; i<len; i++){
+		current_time+=2;
+		//printf("Time passed: %d \n", current_time-start_time);
 		//compute the hash value since we will anyways
 		hashVal = hash(inputArr[i]);
 		//determine if the current element is a customer or an order
 		if(isCust(inputArr[i])){
-			printf("is cust\n");
+			//printf("is cust\n");
 			deserialize(inputArr[i], &tmpC, NULL, 1);
 			
 			pm = look_up_bid(orderSM, hashVal);
@@ -337,9 +348,54 @@ void SymmetricHashJoin(Storage* cust, StorageManager* custSM, Storage* order, St
 					deserialize( (lookIn.data+j) , NULL, &tmpO, 0);
 					if( tmpO.id == tmpC.id){
 						//we found a match
+						snprintf(outputBuffer, 209, "Match: %s %s\n", custToStr(tmpC), orderToStr(tmpO)); 
 						printf("Match: %s <-> %s\n", custToStr(tmpC), orderToStr(tmpO));
-						break;
+						//break; don't break, we might find more tuples that could be matched
 					}
+				}
+				
+				int k;
+				evicted = 0;
+				//printf("Eviction Count: %d \n", evicted);
+				//now to handle eviction
+				for(j = 1; j<MAX_BLOCK_SIZE && lookIn.data[j]; j = j+TUPLE_SIZE){
+					//deserialize the data located here into tmp
+					deserialize( (lookIn.data+j) , NULL, &tmpO, 0);
+					if( (current_time-start_time) > tmpO.expireTime){
+						//we found an element to evict
+						printf("Evicting: %s \n", orderToStr(tmpO));
+						evicted++;
+						
+						//left shift the data by TUPLE_SIZE
+						for(k=j; k<MAX_BLOCK_SIZE; k++){
+							if(k+TUPLE_SIZE < MAX_BLOCK_SIZE){
+								lookIn.data[k] = lookIn.data[k+TUPLE_SIZE];
+							}
+							else{
+								lookIn.data[k] = 0;
+							}
+						}
+						
+						//move j back one increment so that we don't skip the new tuple that was placed there
+						j = j-TUPLE_SIZE;
+					}
+				}
+			}
+			
+			//printf("Eviction Count: %d \n", evicted);
+			if(evicted>0){
+				int pmID = look_up_bid(orderSM, lookIn.data[0]);
+				//do a check if the block is empty
+				if(lookIn.data[1]){
+					//this block has data to place
+					access(order, ORAM_WRITE, &lookIn, pmID, orderSM);
+				}
+				else{
+					//if the block is empty we should write back a dummy block which means overwrite the block id/hash value and then write it back 
+					lookIn.data[0] = HASH_RANGE;
+					access(order, ORAM_WRITE, &lookIn, pmID, orderSM);
+					//now remove this particular hash value from the position map
+					remove_bid(orderSM, pmID);
 				}
 			}
 			
@@ -348,7 +404,7 @@ void SymmetricHashJoin(Storage* cust, StorageManager* custSM, Storage* order, St
 			
 		}
 		else{
-			printf("is order\n");
+			//printf("is order\n");
 			deserialize(inputArr[i], NULL, &tmpO, 0);
 			
 			pm = look_up_bid(custSM, hashVal);
@@ -370,12 +426,54 @@ void SymmetricHashJoin(Storage* cust, StorageManager* custSM, Storage* order, St
 					deserialize( (lookIn.data+j) , &tmpC, NULL, 1);
 					if( tmpO.id == tmpC.id){
 						//we found a match
+						snprintf(outputBuffer, 209, "Match: %s %s\n", custToStr(tmpC), orderToStr(tmpO)); 
 						printf("Match: %s <-> %s\n", custToStr(tmpC), orderToStr(tmpO));
-						break;
+						//break; don't break, we might find more tuples that could be matched
+					}
+				}
+				
+				int k;
+				evicted = 0;
+				//now to handle eviction
+				for(j = 1; j<MAX_BLOCK_SIZE && lookIn.data[j]; j = j+TUPLE_SIZE){
+					//deserialize the data located here into tmp
+					deserialize( (lookIn.data+j) , &tmpC, NULL, 1);
+					if( (current_time-start_time) > tmpC.expireTime){
+						//we found an element to evict
+						printf("Evicting: %s \n", custToStr(tmpC));
+						evicted++;
+						
+						//left shift the data by TUPLE_SIZE
+						for(k=j; k<MAX_BLOCK_SIZE; k++){
+							if(k+TUPLE_SIZE < MAX_BLOCK_SIZE){
+								lookIn.data[k] = lookIn.data[k+TUPLE_SIZE];
+							}
+							else{
+								lookIn.data[k] = 0;
+							}
+						}
+						
+						//move j back one increment so that we don't skip the new tuple that was placed there
+						j = j-TUPLE_SIZE;
 					}
 				}
 			}
-			
+			//printf("Eviction Count: %d \n", evicted);
+			if(evicted>0){
+				int pmID = look_up_bid(custSM, lookIn.data[0]);
+				//do a check if the block is empty
+				if(lookIn.data[1]){
+					//this block has data to place
+					access(cust, ORAM_WRITE, &lookIn, pmID, custSM);
+				}
+				else{
+					//if the block is empty we should write back a dummy block which means overwrite the block id/hash value and then write it back 
+					lookIn.data[0] = HASH_RANGE;
+					access(cust, ORAM_WRITE, &lookIn, pmID, custSM);
+					//now remove this particular hash value from the position map
+					remove_bid(custSM, pmID);
+				}
+			}
 			//now that the join happened or not store this particular tuple into the tree
 			addTuple(NULL, &tmpO, 0, order, orderSM);
 			
@@ -383,7 +481,7 @@ void SymmetricHashJoin(Storage* cust, StorageManager* custSM, Storage* order, St
 		
 	
 	}
-	
+	/*
 	printf("printing the trees for info\n\n");
 	
 	printf("*************************\nCustomer\n");
@@ -393,16 +491,25 @@ void SymmetricHashJoin(Storage* cust, StorageManager* custSM, Storage* order, St
 	printf("*************************\nOrder\n");
 	print_storage_no_dummy(*order);
 	print_stash(orderSM, 0);
+	*/
 
 }
 
-void ecall_sjoin(Storage* cust, Storage* order, uint8_t** inputArr, int len){
+void ecall_sjoin(Storage* cust, Storage* order, uint8_t** inputArr, int len, char* outputBuffer){
 	printf("==> Entering enclave\n");
-	init_storage(cust);
-	init_storage(order);
-	StorageManager custSM = create_manager();
-	StorageManager orderSM = create_manager();
 
+	if(cust->initialized != 1){
+		init_storage(cust);
+	}
+	if(order->initialized !=1){
+		init_storage(order);
+	}
+
+	if(SMinitialized != 1){
+		custSM = create_manager();
+		orderSM = create_manager();
+		SMinitialized = 1;
+	}
 
 
 	//some printing of the data to see if it is there
@@ -461,7 +568,7 @@ void ecall_sjoin(Storage* cust, Storage* order, uint8_t** inputArr, int len){
 	}
 	printf("**Buff Line**\n");
 	*/
-	SymmetricHashJoin(cust,&custSM, order, &orderSM, inputArr,len);
+	SymmetricHashJoin(cust,&custSM, order, &orderSM, inputArr,len, outputBuffer);
 	
 
 	
