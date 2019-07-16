@@ -5,15 +5,17 @@
 
 typedef struct{
 	int id;
+	uint8_t expireTime;
 	char name[25];
-	int expireTime;
+	
 
 }Customer;
 
 typedef struct{
 	int id;
+	uint8_t expireTime;
 	char name[50];
-	int expireTime;
+	
 
 }Order;
 
@@ -21,6 +23,10 @@ void readCust(char* filename, int numLines, Customer* retval);
 char* custToStr(Customer c);
 void readOrder(char* filename, int numLines, Order* retval);
 char* orderToStr(Order c);
+
+
+void uint32_to_uint8(int from, uint8_t* to);
+int uint8_to_uint32(uint8_t* in);
 
 uint8_t* serialize(Customer* c, Order* o, int isCust); 
 void deserialize(uint8_t* cereal, Customer* c, Order* o, int isCust);

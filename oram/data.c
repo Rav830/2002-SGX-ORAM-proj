@@ -63,29 +63,86 @@ void readOrder(char* filename, int numLines, Order* retval){
 	fclose(in);
 }
 
+void uint32_to_uint8(int from, uint8_t* to){
+	uint8_t* tmp = (uint8_t*)&from;
+	to[0] = tmp[0];
+	to[1] = tmp[1];
+	to[2] = tmp[2];
+	to[3] = tmp[3];
+}
+
+int uint8_to_uint32(uint8_t* in){
+	int retval = in[0] | (in[1] << 8) | (in[2] << 16) | (in[3] << 24);
+	return retval; 
+}
+
 uint8_t* serialize(Customer* c, Order* o, int isCust){
 
 
-	char* retval = malloc(64 * sizeof(uint8_t));
-
+	uint8_t* retval =  (uint8_t*) malloc(64 * sizeof(uint8_t));
+	
+	
 	if(isCust){
-		char* tmp = custToStr(*c);
-		sprintf(retval, "+,%s", tmp);
-		
-		free(tmp);
+		//load the identifier into buffer
+		retval[0] = (uint8_t) '+';
+		//load in the int to the buffer
+		uint32_to_uint8(c->id, (retval+1));
+		//load the expire time to buffer
+		retval[5] = c->expireTime;
+		// now copy the name into the buffer starting at the 8 element
+		int i;
+		for(i=0; i<25; i++){
+			retval[i+8] = (uint8_t)c->name[i];
+		}
 		
 	}
 	else{
-		char* tmp = orderToStr(*o);
-		sprintf(retval, "-,%s", tmp);
-		
-		free(tmp);
+		//load the identifier into buffer
+		retval[0] = (uint8_t) '-';
+		//load in the int to the buffer
+		uint32_to_uint8(o->id, (retval+1));
+		//load the expire time to buffer
+		retval[5] = o->expireTime;
+		// now copy the name into the buffer starting at the 8 element
+		int i;
+		for(i=0; i<50; i++){
+			retval[i+8] = (uint8_t) o->name[i];
+		}
 	}	
-	return (uint8_t*)retval;
+	return retval;
 }
 
+
 void deserialize(uint8_t* cereal, Customer* c, Order* o, int isCust){
-	char* line = malloc(64*sizeof(char));
+	if(isCust){
+		//extract the id from the buffer
+		c->id = uint8_to_uint32(cereal+1);
+		//extract the expiretime
+		c->expireTime = cereal[5];
+		//copy back the rest of the data 
+		int i;
+		for(i=0; i<25; i++){
+			 c->name[i] = (char)cereal[i+8];
+		}	
+		
+	}else{
+		//extract the id from the buffer
+		o->id = uint8_to_uint32(cereal+1);
+		//extract the expiretime
+		o->expireTime = cereal[5];
+		//copy back the rest of the data 
+		int i;
+		for(i=0; i<50; i++){
+			 o->name[i] = (char)cereal[i+8];
+		}
+	}		
+}
+
+
+
+/*
+
+char* line = malloc(64*sizeof(char));
 	char* end;
 	memcpy(line, (char*)cereal, 64);
 	
@@ -108,7 +165,7 @@ void deserialize(uint8_t* cereal, Customer* c, Order* o, int isCust){
 	
 	free(line);
 	//free(end);
-}
+	*/
 
 uint8_t* serializeWithHash(Customer* c, Order* o, int isCust){
 

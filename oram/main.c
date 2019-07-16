@@ -538,14 +538,14 @@ void testFileIO(){
 
 	uint8_t* serializedCust = serialize(&custs[0], NULL, 1);
 	for(i=0; i<64; i++){
-		printf("%c", serializedCust[i]);
+		printf("%d ", serializedCust[i]);
 	}
 
 	printf("\n");
 	
 	uint8_t* serializedOrd = serialize(NULL, &orders[0], 0);
 	for(i=0; i<64; i++){
-		printf("%d", serializedOrd[i]);
+		printf("%d ", serializedOrd[i]);
 	}
 	printf("\n");
 	printf("deserializing\n");
@@ -859,11 +859,27 @@ void test_insert_idx(){
 
 }
 
+
+
 int main(){
 
 	
 
 	printf("compile\n");
+	
+	/*int a1 = 256+8+1;
+	int a2 = 34244;
+	uint8_t b[8];	
+	uint32_to_uint8(a1, b);
+	uint32_to_uint8(a2, (b+4));
+	printf("%d -> %d %d %d %d -> %d\n", a1, b[0], b[1], b[2], b[3], uint8_to_uint32(b));
+	printf("%d -> %d %d %d %d -> %d\n", a2, b[4], b[5], b[6], b[7], uint8_to_uint32((b+4)));
+	*/
+	
+	
+	//b = (uint8_t*)&a;
+	//b[0] = 12;
+	
 	//nutterTest();
 	
 	
@@ -874,8 +890,8 @@ int main(){
 	//testcode();
 	
 	//readAndStore();
-	testJoin();
-	//testFileIO();
+	//testJoin();
+	testFileIO();
 	return 1;
 }
 
