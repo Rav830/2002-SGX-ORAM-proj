@@ -4,12 +4,12 @@ import random
 fake = Faker()
 fake.seed(4321)
 
-numCustomers = 20
-numOrders = 200
+numCustomers = 100 #524288
+numOrders = 100 #524288
 
 
-ch = open('customer.csv', 'w')
-oh = open('order.csv', 'w')
+ch = open('customerSmall.csv', 'w')
+oh = open('orderSmall.csv', 'w')
 ch.write("id,name,expire_time\n")
 oh.write("id,name,expire_time\n")
 

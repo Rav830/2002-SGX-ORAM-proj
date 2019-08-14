@@ -71,7 +71,7 @@ int intersect_idx(int leafOne, int leafTwo, int height, int numBuckets, int leav
 }
 
 
-Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramSM){
+void access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramSM){
 	//printf("printing block\n");
 	int i,j,k;
 	
@@ -142,15 +142,16 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 	}
 	printf("\n");
 */
-	Block retval; //= create_dummy_block();
+	//Block retval; //= create_dummy_block();
 	int saved = 0;
 	//read
 	if(op == ORAM_READ){
 		for(i = 0; i<oramSM->stashIDX; i++){
 			if(oramSM->stash[i].data[0] == oramSM->pmBID[pmID]){
 				
-				retval = oramSM->stash[i];
-				data = &(oramSM->stash[i]);
+				//retval = oramSM->stash[i];
+				//data = &(oramSM->stash[i]);
+				memcpy(data, &(oramSM->stash[i]), sizeof(Block));
 					
 			}
 		}
@@ -316,6 +317,6 @@ Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramS
 
 	//finally we place the buckets into the tree.
 	set_buckets(oram, idx, newPath);
-	return retval;
+	//return retval;
 	
 }

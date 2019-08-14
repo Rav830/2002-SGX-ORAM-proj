@@ -19,6 +19,6 @@ int getpmID(StorageManager* oramSM, int bid);
 int intersect_idx(int leafOne, int leafTwo, int height, int numBuckets, int leaves);
 
 
-Block access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramSM);
+void access(Storage* oram, int op, Block* data, int pmID, StorageManager* oramSM);
 
 #endif

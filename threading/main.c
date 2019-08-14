@@ -17,13 +17,14 @@ int main(){
 	int diff = (int) difftime(time(0), start);
 	printf("%d \n", diff);
 	printf("compileTest\n");
-	//pthread_t thread_id; 
+	pthread_t thread_id; 
 	printf("Before Thread\n"); 
-    //pthread_create(&thread_id, NULL, func, NULL);
+    
     printf("Blarg");
     printf("Blarg");
     printf("Blarg");
     printf("Blarg");
+    pthread_create(&thread_id, NULL, func, NULL);
     printf("Blarg");
     printf("Blarg");
     printf("Blarg");

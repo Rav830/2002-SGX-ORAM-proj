@@ -1,0 +1,319 @@
+ /*
+    
+   
+        
+    //#####################################################
+    // Seal a string
+    //int ptr = 100;
+    /*char ptr[100] = "abcdef";
+    //memset(ptr, 0, 100);
+    size_t sealed_size = sizeof(sgx_sealed_data_t) + sizeof(char)*100;
+    uint8_t* sealed_data = (uint8_t*)malloc(sealed_size);
+    int i;
+	char unsealed[100];
+
+    sgx_status_t ecall_status;
+    status = seal(global_eid, &ecall_status,
+            (uint8_t*)ptr, 100*sizeof(char), //plain text and plaintext len???
+            (sgx_sealed_data_t*)sealed_data, sealed_size); //sealed data and sealed ??
+
+    if (!is_ecall_successful(status, "Sealing failed :(", ecall_status)) {
+        return 1;
+    }
+    
+    
+    printf("sealed_size = %lu\n", sealed_size);
+    for(i=0; i<sealed_size; i++){
+    	printf("%d ", sealed_data[i]);
+    }
+	printf("\n");
+   
+    status = unseal(global_eid, &ecall_status,
+            (sgx_sealed_data_t*)sealed_data, sealed_size,
+            (uint8_t*)unsealed, 100*sizeof(char));
+
+    if (!is_ecall_successful(status, "Unsealing failed :(", ecall_status)) {
+        return 1;
+    }
+
+    std::cout << "Seal round trip success! Receive back " << unsealed << std::endl;
+
+	printf("BUFFERLINE*********************************************\n");
+    status = seal(global_eid, &ecall_status,
+            (uint8_t*)ptr, 100*sizeof(char), //plain text and plaintext len???
+            (sgx_sealed_data_t*)sealed_data, sealed_size); //sealed data and sealed ??
+
+    if (!is_ecall_successful(status, "Sealing failed :(", ecall_status)) {
+        return 1;
+    }
+    
+    
+    printf("sealed_size = %lu\n", sealed_size);
+    for(i=0; i<sealed_size; i++){
+    	printf("%d ", sealed_data[i]);
+    }
+	printf("\n");
+   
+    status = unseal(global_eid, &ecall_status,
+            (sgx_sealed_data_t*)sealed_data, sealed_size,
+            (uint8_t*)unsealed, 100*sizeof(char));
+
+    if (!is_ecall_successful(status, "Unsealing failed :(", ecall_status)) {
+        return 1;
+    }
+
+    std::cout << "Seal round trip success! Receive back " << unsealed << std::endl;
+    */
+    
+	//#####################################################
+    
+    
+     /*
+    int id = 1;
+    char name[] = "prodName";
+    
+    Product* p = createProduct(id, name, 0);
+    
+    setGlobalID(global_eid);
+    
+    printProd(p);
+    
+    ecall_read_product(global_eid, p); 
+    
+    /*
+    Block* root = (Block*)malloc(sizeof(Block));
+    root->id = 5;
+    root->content = "root";
+    
+    Block* left = (Block*)malloc(sizeof(Block));
+    left->id = 6;
+    left->content = "adaf";
+    
+    Block* right = (Block*)malloc(sizeof(Block));
+    right->id = 7;
+    right->content = "adfa";
+    
+    root->left = left;
+    root->right = right;
+    
+    Block* leftleft = (Block*)malloc(sizeof(Block));
+    leftleft->id = 8;
+    leftleft->content = "leftleft";
+    
+    root->left->left = leftleft;
+    
+    printf("%d %s\n", root->id, root->content);
+    printf("%d %s\n", root->left->id, root->left->content);
+    
+    //ecall_print_block(global_eid, root);
+    */
+    
+
+    /*int i;    
+    Product** p_arr = genProducts(50);
+    Customer** c_arr = genCustomers(5);
+    
+    
+    for(i =0; i< 20; ++i){
+    	printProd(p_arr[i]);
+    }
+ 	printf("==========\n");
+    for(i =0; i < 5 ; ++i){
+    	printCust(c_arr[i]);
+    }
+    
+    NLJ(p_arr, 50, c_arr, 5);
+    
+    
+    int retval;
+    
+    status = ecall_nlj(global_eid, &retval, p_arr, c_arr, 50, 5);
+    if(status != SGX_SUCCESS) {
+        std::cout <<  "Failed to join.\n" << std::endl;
+        return 1;
+    }
+    
+*/
+
+
+    //#####################################################
+    //Random number generation 
+    int ptr;
+    sgx_status_t status = generate_random_number(global_eid, &ptr);
+    std::cout << status << std::endl;
+    if (status != SGX_SUCCESS) {
+        std::cout << "noob" << std::endl;
+    }
+    printf("Random number: %d\n", ptr);
+	//#####################################################
+	   //#####################################################
+    // Seal a string
+    //int ptr = 100;
+    char ptr[100]; //"abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi";
+    memset(ptr, 0, 100);
+    size_t sealed_size = sizeof(sgx_sealed_data_t) + sizeof(char)*100;
+    uint8_t* sealed_data = (uint8_t*)malloc(sealed_size);
+    int i;
+	char unsealed[100];
+
+    sgx_status_t ecall_status;
+    status = seal(global_eid, &ecall_status,
+            (uint8_t*)ptr, 100*sizeof(char), //plain text and plaintext len???
+            (sgx_sealed_data_t*)sealed_data, sealed_size); //sealed data and sealed ??
+
+    if (!is_ecall_successful(status, "Sealing failed :(", ecall_status)) {
+        return 1;
+    }
+    
+    
+    printf("sealed_size = %lu\n", sealed_size);
+    for(i=0; i<sealed_size; i++){
+    	printf("%d ", sealed_data[i]);
+    }
+	printf("\n");
+   
+    status = unseal(global_eid, &ecall_status,
+            (sgx_sealed_data_t*)sealed_data, sealed_size,
+            (uint8_t*)unsealed, 100*sizeof(char));
+
+    if (!is_ecall_successful(status, "Unsealing failed :(", ecall_status)) {
+        return 1;
+    }
+
+    std::cout << "Seal round trip success! Receive back " << unsealed << std::endl;
+
+	//#####################################################
+
+	//#####################################################
+    // Perform a simple addition in the enclave
+    int a = ptr;
+    int b = 100;
+    status = ecall_add(global_eid, &ptr, a, b);
+    if (status != SGX_SUCCESS) {
+        std::cout << "Enclave addition failed :(" << std::endl;
+        return 1;
+    }
+    std::cout << "Enclave addition success! " << a << " + " << b << " = " << ptr << std::endl;
+    //#####################################################
+
+	//#####################################################
+	//Perform simple multiplication in the enclave
+	
+	int x = 34;
+	int y = 2;
+	int retval;
+	status = ecall_multiply(global_eid, &retval, x, y);
+	
+	if (status != SGX_SUCCESS) {
+		std::cout << "Enclave multiplication failed :(" << std::endl;
+        return 1;
+	}	
+	
+	
+	
+	std::cout << "Enclave multiplication success! " << x << " * " << y << " = " << retval << std::endl;
+    //#####################################################
+	
+	
+	
+	printf("\n\nSome Buffer Space\n\n");
+	
+	//#####################################################
+	//Let's try to copy some array's into the enclave and 
+	// then do some generic operations on them through ocalls
+
+	//make int array
+	
+	int data[20];
+	size_t size = 20;
+	int i;
+	for(i = 0; i < size; ++i){
+		data[i] = i;
+	}
+	
+	//now we do some ecall to store this information into the enclave and let's just ocall print it
+	
+		//Let's store an int
+	status = ecall_store_int(global_eid, data[5]);
+	
+	if(status != SGX_SUCCESS){
+		return 1;
+	}
+	printf("\nSome Buffer Space\n");
+	status = ecall_store_int_arr(global_eid, data, size);
+	if(status != SGX_SUCCESS){
+		return 1;
+	}
+	
+	printf("\nSome Buffer Space\n");
+	status = ecall_mult_int(global_eid, 7);
+	if(status != SGX_SUCCESS){
+		return 1;
+	}
+	printf("\nSome Buffer Space\n");
+	//make something to hold data
+	int outHold[20];
+	
+	status = ecall_load_int_arr(global_eid, outHold, size);
+	if(status != SGX_SUCCESS){
+		return 1;
+	}
+	
+	for(i=0; i<size; ++i){
+		printf("outHold has %d\n", outHold[i]);
+	
+	}
+	
+	//#####################################################
+    // interact with external var
+	
+	int* numPTR = &num;
+
+	*numPTR = 5;
+		
+	printf("%d\n", *numPTR);
+	printf("%d\n", num);
+	status = enclave_main(global_eid, &retval, &num);
+	if(status != SGX_SUCCESS){
+		return 1;
+	}
+	printf("%d\n", *numPTR);
+    
+    num = 65;
+    printf("%d\n", num);
+    status = enclave_main(global_eid, &retval, &num);
+	if(status != SGX_SUCCESS){
+		return 1;
+	}
+    
+    printf("%d\n", *numPTR);
+    
+    
+    
+    //make an int array
+    int data[20];
+	size_t size = 20;
+	int i;
+	for(i = 0; i < size; ++i){
+		data[i] = i;
+		printf("%d\n", data[i]);
+	}
+	
+	
+	status = ecall_array_add_no_copy(global_eid, &retval, data, size, 6);
+    if(status != SGX_SUCCESS){
+		return 1;
+	}
+    
+    
+	for(i=0; i<size; ++i){
+		printf("%d\n", data[i]);
+	
+	}
+	
+    //#####################################################
+
+	status = enclave_fill_mem(global_eid);
+    if(status != SGX_SUCCESS){
+		return 1;
+	}*/

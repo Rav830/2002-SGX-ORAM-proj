@@ -13,9 +13,9 @@ enclave {
     trusted {
         /* define ECALLs here. */
         public int generate_random_number(void);
-        public int enclave_main([user_check] Storage* ptr);
+        public int enclave_main(void);
         public void enclave_fill_mem(void);
-        public void ecall_sjoin([user_check]Storage* cust, [user_check]Storage* order, [user_check]uint8_t** inputArr, int len, [user_check]char* outBuffer);
+        public void ecall_sjoin([user_check]Storage* cust, [user_check]Storage* order, [user_check]uint8_t** inputArr, int len, int windowSeconds, [user_check]char* outBuffer);
         public void ecall_testStruct([user_check] testB* obj);
         //public void ecall_print_block([user_check]Block* root);
 

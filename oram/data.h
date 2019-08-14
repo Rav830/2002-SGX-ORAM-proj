@@ -36,6 +36,6 @@ void deserializeWithHash(uint8_t* cereal, Customer* c, Order* o, int isCust);
 
 int isCust(uint8_t* cereal);
 
-int hash(uint8_t* str);
+uint8_t hash(uint8_t* str);
 
 #endif

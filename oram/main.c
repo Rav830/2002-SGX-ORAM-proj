@@ -558,7 +558,10 @@ void testFileIO(){
 	deserialize(serializedOrd, NULL, &outo, 0);
 	printf("%s\n", orderToStr(outo));
 	
-	//printf("Let's try hashing the serialized data");
+	
+	printf("Let's try hashing the serialized data");
+	printf("Customer Hash: %d\n", hash(serializedCust));
+	printf("Order Hash: %d\n", hash(serializedOrd));
 
 }
 

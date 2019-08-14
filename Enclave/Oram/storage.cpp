@@ -371,15 +371,22 @@ StorageManager create_manager(){
 
 int add_bid(StorageManager* lookIn, int bid){
 	int i;
+	//Doing two loops one to try to find the element first and another to actually add it to the first available spot
+	//printf("adding bid %d \n", bid);
+	//print_pm(lookIn);
 	for(i=0; i<PM_SIZE; i++){
-		if(lookIn->pmBID[i] == -1){
-			lookIn->pmBID[i] = bid;	
-		}
-		
 		if(lookIn->pmBID[i] == bid){
 			return i;
 		}
 	}
+	
+	for(i=0; i<PM_SIZE; i++){
+		if(lookIn->pmBID[i] == -1){
+			lookIn->pmBID[i] = bid;	
+			return i;
+		}
+	}
+	
 	
 	ocall_print("Ran out of space in the position map\n\n");
 	
@@ -389,15 +396,18 @@ int add_bid(StorageManager* lookIn, int bid){
 
 int remove_bid(StorageManager* lookIn, int bid){
 	int i;
-	for(i=0; i<PM_SIZE; i++){	
+	//printf("Removing: %d\n", bid);
+	for(i=0; i<PM_SIZE; i++){
+		//printf("\t\t\t%d\n", lookIn->pmBID[i]);	
 		if(lookIn->pmBID[i] == bid){
+			//printf("\n");
 			lookIn->pmBID[i] = -1;
 			return 1;
 		}
 	}
 	
-	ocall_print("failed to find the block id in this ORAM Stroage Manager\n\n");
-	
+	printf("failed to find the block id (%d) in this ORAM Stroage Manager\n\n", bid);
+	abort();
 	return -1;
 
 }
@@ -405,6 +415,7 @@ int remove_bid(StorageManager* lookIn, int bid){
 int look_up_bid(StorageManager* lookIn, int bid){
 	int i;
 	for(i=0; i<PM_SIZE; i++){
+		//printf("\t\t\t%d\n", lookIn->pmBID[i]);
 		if(lookIn->pmBID[i] == bid){
 			return i;
 		}

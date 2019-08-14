@@ -1,17 +1,18 @@
 #ifndef DATASTRUCT_H
 #define DATASTRUCT_H
-
+#include <stdint.h>
 typedef struct{
 	int id;
-	char name[25];
 	int expireTime;
+	char name[25];
 
 }Customer;
 
 typedef struct{
 	int id;
-	char name[50];
 	int expireTime;
+	char name[50];
+
 
 }Order;
 

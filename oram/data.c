@@ -233,28 +233,15 @@ int isCust(uint8_t* cereal){
 
 }
 
-int hash(uint8_t* str)
+uint8_t hash(uint8_t* str)
 {
-    int hash = 5381;
-    int i, commaFlag = 0;
-	
-	for(i = 0; i<65; i++){
-		if(str[i] == ((int)',')){
-			commaFlag++;
-		}
-		else{
-			//compute hash
-			if(commaFlag == 1){
-				hash = ((hash << 5) + hash) + str[i]; /* hash * 33 + c */	
-			}
-		}
-		if(commaFlag == 2){
-			break;
-		}
-		
+    uint32_t hash = 6969;
+    int i;
+	for(i = 1; i<5; i++){
+		//compute hash
+		hash = ((hash << 5) + hash) + str[i]; /* hash * 33 + c */	
 	}
-
-    return (int)(hash%HASH_RANGE);
+    return (uint8_t)(hash%HASH_RANGE);
 }
 
 

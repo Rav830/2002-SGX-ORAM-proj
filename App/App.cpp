@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+
 #include "Enclave_u.h"
 #include "sgx_urts.h"
 #include "sgx_utils/sgx_utils.h"
@@ -7,17 +8,14 @@
 #include "../Include/oramStructs.hpp"
 #include "../Include/dataStruct.hpp"
 #include "dataFunc.hpp"
-//#include "Join/appJoin.cpp"
-
-
+#include "appJoin.hpp"
+#include <time.h>
 //#include "EncryptionTest.cpp"
 
 /* Global EID shared by multiple threads */
 sgx_enclave_id_t global_eid = 0;
-
-int pull[20] = {0};
-
-int num;
+int inputRate = 10; //rate is in the form of mb/s
+bool splitHalf = false;
 
 // OCall implementations
 void ocall_println(const char* str) {
@@ -51,51 +49,159 @@ void print_storage(Storage justCause){
 	}
 }
 
-/*int[] ocall_get_arr(){
-	return pull; 
+int contains(int* arr, int len, int val){
+	int i;
+	for(i=0; i<len; i++){
+		if(arr[i] == val){
+			return 1;
+		}
+	}
+	return 0;
 }
 
-void testJoin(){
-	//first prepare the simulated input stream
-	Customer custs[20];
-	readCust("../dataGen/customer.csv", 20, custs);
+void add(int* arr, int len, int val){
+	int i;
+	for(i=0; i<len; i++){
+		if(arr[i] == 0 || arr[i] == val){
+			arr[i] = val;
+			return;
+		}
+	}
 	
-	Order orders[80];
-	readOrder("../dataGen/order.csv", 80, orders);	
-	
-	uint8_t* cerealBox[100];
-	
-	
-	int idx = 0, i;
-	
+}
+
+
+
+int max(int a, int b){
+	if(a>b){
+		return a;
+	}
+	else{
+		return b;
+	}
+}
+
+int min(int a, int b){
+	if(a<b){
+		return a;
+	}
+	else{
+		return b;
+	}
+}
+
+int numTuplesMap[11][2];
+void add(int time, int idx){
+	int i;
+	for(i=0; i<11; i++){
+		if(numTuplesMap[i][0] == -1 || numTuplesMap[i][0] == time){
+			numTuplesMap[i][0] = time;
+			numTuplesMap[i][1] = idx;
+			return;
+		}
+	}
+}
+int get(int time){
+	int i;
+	for(i=0; i<11; i++){
+		if(numTuplesMap[i][0] == time){
+			return numTuplesMap[i][1];
+		}
+	}
+}
+
+int endTime = 0; 
+uint8_t** genCerealBox(int total, Customer* custs, int numCusts, Order* orders, int numOrder){
+	uint8_t** retval = (uint8_t**) malloc(total*sizeof(uint8_t*));
 	//serialize the data and place into serialized data array
-	for(i=0; i<80; i++){
+	// elements are placed in an alternating pattern
+	int idx = 0, i, offset;
+	int currTime = (int)time(NULL);
+	for(i=0; i<numOrder; i++){
 		
-		if(i<20){
-			cerealBox[idx] = serialize(&custs[i], NULL, 1);
+		if(i<numCusts){
+			if(splitHalf && idx > total/2){
+				offset = 4;
+			}
+			else{
+				offset = (idx*100)/(inputRate*1024*1024);
+			}
+			custs[i].expireTime = currTime + offset;
+			endTime = max(endTime, currTime + offset);
+			add(endTime, idx+1);
+			retval[idx] = serialize(&custs[i], NULL, 1);
 			idx++;
 		}
-		
-		cerealBox[idx] = serialize(NULL, &orders[i], 0);
+		if(splitHalf && idx > total/2){
+			offset = 4;
+		}
+		else{
+			offset = (idx*100)/(inputRate*1024*1024);
+		}
+		orders[i].expireTime = currTime + offset;
+		endTime = max(endTime, currTime + offset);
+		add(endTime, idx+1);
+		retval[idx] = serialize(NULL, &orders[i], 0);
 		idx++;
 	}
-	// elements are placed in an alternating pattern
-
-	printf("The data has been read in and serialized into an array, creating two storages and going to join the data\n");	
-
-	StorageManager custSM = create_manager();
 	
-	Storage orderStore = create_storage();
-	StorageManager orderSM = create_manager();
-	
-	SymmetricHashJoin(&custStore, &custSM, &orderStore, &orderSM, cerealBox, 100);
-
+	endTime +=1;
+	return retval;
 }
-*/
 
+void print_block(Block* toPrint){
+	
+	int i;
+	printf("Data: ");
+	for(i=0; i<MAX_BLOCK_SIZE; i++){
+		printf("%d ", toPrint->data[i]);
+	}
+	printf("\nInit Vec: ");
+	for(i=0; i<12; i++){
+		printf("%d ", toPrint->init_vec[i]);
+	}
+	printf("\nmac: ");
+	for(i=0; i<16; i++){
+		printf("%d ", toPrint->mac[i]);
+	}
+	printf("\n");
+}
+
+double print_time(clock_t start, clock_t end, char* message, int print){
+	double time_elapsed = double(end - start) / double(CLOCKS_PER_SEC);
+	if(print){
+		printf("%s %.9f \n", message, time_elapsed);
+	}
+	return time_elapsed;
+}
 
 int main(int argc, char const *argv[]) {
 
+		
+	
+	/*Block temp;
+	Block tempt;
+	
+	int b;
+	for(b=0; b<MAX_BLOCK_SIZE; b++){
+		temp.data[b] = b;
+	}
+	for(b=0; b<12; b++){
+		temp.init_vec[b] = b;
+	}
+	for(b=0; b<16; b++){
+		temp.mac[b] = b;
+	}
+	
+	print_block(&temp);
+	print_block(&tempt);
+	memcpy(&tempt, &temp, sizeof(Block));
+		print_block(&temp);
+	print_block(&tempt);
+	printf("Block Size: %lu -- %d\n", sizeof(Block), 3001+12+16);
+	
+	abort();
+	*/
 	//Create the Enclave
     if (initialize_enclave(&global_eid, "enclave.token", "enclave.signed.so") < 0) {
         std::cout << "Fail to initialize enclave." << std::endl;
@@ -103,215 +209,191 @@ int main(int argc, char const *argv[]) {
     }
     
     sgx_status_t status;
+    int retval, i, j;
     
-    Storage justCause;
-    //print_storage(justCause);
-    int retval;
-    //printf("SGX SUCCESS: %d\n", SGX_SUCCESS);
-    //printf("SGX_ERROR_INVALID_PARAMETER: %d\n", SGX_ERROR_INVALID_PARAMETER);
-    //printf("SGX_ERROR_OUT_OF_MEMORY: %d\n", SGX_ERROR_OUT_OF_MEMORY);
-    //printf("SGX_ERROR_UNEXPECTED: %d\n", SGX_ERROR_UNEXPECTED ); 
-    
-    
-    Customer custs[20];
-    char cpath[] = "dataGen/customer.csv";
-	readCust(cpath, 20, custs);
-	
-	Order orders[80];
-	char opath[] = "dataGen/order.csv";
-	readOrder(opath, 80, orders);	
-	
-	uint8_t* cerealBox[100];
-	
-	
-	int idx = 0, i;
-	
-	//serialize the data and place into serialized data array
-	for(i=0; i<80; i++){
-		
-		if(i<20){
-			cerealBox[idx] = serialize(&custs[i], NULL, 1);
-			idx++;
-		}
-		
-		cerealBox[idx] = serialize(NULL, &orders[i], 0);
-		idx++;
-	}
-	// elements are placed in an alternating pattern
+    for(i =0; i<11; i++){
+    	for(j = 0; j<2; j++){
+    		numTuplesMap[i][j] = -1;
+    	}
+    }
 
-    Storage custStore;// = create_storage();
-    Storage orderStore;// = create_storage();
     
+    int numCusts = 100;//524288; //100
+    int numOrder = 100;//524288; //100
+    int total = numCusts+numOrder;
+    
+    Customer* custs = (Customer*) malloc(numCusts * sizeof(Customer));
+    char cpath[] = "dataGen/customerSmall.csv";
+	readCust(cpath, numCusts, custs);
+	
+	Order* orders = (Order*) malloc(numOrder*sizeof(Order));
+	char opath[] = "dataGen/orderSmall.csv";
+	readOrder(opath, numOrder, orders);	
+
+
+
     int BufferSize = 209*1000;
     
     char outBuffer[BufferSize];
     memset(outBuffer, 0, BufferSize);
-    	for(i = 0; i<BufferSize; i++){
-		printf("%d ", outBuffer[i]);
+
+	
+	uint8_t** cerealBox = genCerealBox(total, custs, numCusts, orders, numOrder);
+
+	
+	/*Customer tmpC;
+	Order tmpO;
+	int tmp[12];
+	memset(tmp, 0, 12*sizeof(int));
+	for(i=0; i<total; i++){
+		
+		deserialize(cerealBox[i], &tmpC, &tmpO, isCust(cerealBox[i]));
+		
+		if(isCust(cerealBox[i])){
+			add(tmp, 12, tmpC.expireTime);
+			//printf("%s\n", custToStr(tmpC));
+		}
+		else{
+			add(tmp, 12, tmpO.expireTime);
+			//printf("%s\n", orderToStr(tmpO));
+		}
+		
 	}
+	
+	for(i=0; i<12; i++){
+		printf("%d\n", tmp[i]);
+	}
+		
+	abort();*/
+	clock_t start, end, batchStart, batchEnd;
+	int window = 1;
+	printf("The window size is %d\n", window);	
+	int currTime = (int)time(NULL);
+	int batchSize = 5; //number of tuples to process per loop
+	int numProcessed = 0;
+	int tuplesAvailable = 0;
+	char messageB[] = "Time spent on this batch is:";
+	int numJoined = 0;
+	char message[] = "The time elapsed is";
+    double batchProcessTime = 0;
     
-    status = ecall_sjoin(global_eid, &custStore, &orderStore, cerealBox, 50, outBuffer);
+    Storage custStore;// = create_storage();
+    Storage orderStore;// = create_storage();
+    start = clock();
+    batchStart = clock();
+    status = ecall_sjoin(global_eid, &custStore, &orderStore, cerealBox, 0, window, outBuffer);
     if(status != SGX_SUCCESS){
 		return 1;
 	}
-	//printf("Printing Customer\n");
-	//print_storage(custStore);
+    batchEnd = clock();
+    char messageA[] = "The time spent to just initalize the Storages and Storage Managers";
+    print_time(batchStart, batchEnd, messageA, 1);
+    
+    
+    
+
 	
-	//status = ecall_sjoin(global_eid, &custStore, &orderStore, (cerealBox+1), 1, outBuffer);
-	if(status != SGX_SUCCESS){
-		return 1;
+	//run while 
+	while(currTime < endTime){
+		if(max(tuplesAvailable - numProcessed, 0)){
+			batchStart = clock();
+			status = ecall_sjoin(global_eid, &custStore, &orderStore, cerealBox+numProcessed, max(min(batchSize, tuplesAvailable-numProcessed+1), 0), window, outBuffer);
+			//printf("%d\n", max(min(batchSize, tuplesAvailable-numProcessed+1), 0));
+
+			if(status != SGX_SUCCESS){
+				return 1;
+			}
+			else{
+				numProcessed += batchSize;
+				//printf("Did %d\n", numProcessed);
+			}
+			batchEnd = clock();
+	
+			batchProcessTime += print_time(batchStart, batchEnd, messageB, 0);
+		}else{
+			tuplesAvailable = get(currTime);	
+		
+		}
+		currTime = (int)time(NULL);
 	}
-	//printf("Printing Customer\n");
-	//print_storage(custStore);
-	//status = ecall_sjoin(global_eid, &custStore, &orderStore, (cerealBox+2), 1, outBuffer);
-	if(status != SGX_SUCCESS){
-		return 1;
-	}
+	
+	
+	
+	end = clock();
+	
+	
+	
 	
 	for(i = 0; i<BufferSize; i++){
-		printf("%c", outBuffer[i]);
+		if(outBuffer[i] == ':'){
+			numJoined++;
+		}
+		//printf("%c", outBuffer[i]);
 	}
+	printf("The Number of joins: %d\n", numJoined);
+	
+	print_time(start, end, message, 1);
+	printf("The time elapsed for all batches is %.9f \n", batchProcessTime);
+	//printf("The time for each tuple is %.5f \n", time_elapsed/total); 
+	printf("**********************************\n");
+
+	//Now set up the NLJ to get an idea of how many tuples should be joined
+	for(i=0; i<total; i++){
+		free(cerealBox[i]);
+	}
+	free(cerealBox);
+	cerealBox = genCerealBox(total, custs, numCusts, orders, numOrder);
+	Customer* custPlace = (Customer*) malloc(numCusts * sizeof(Customer));
+	Order* orderPlace = (Order*) malloc(numOrder*sizeof(Order));
+	currTime = (int)time(NULL);
+	tuplesAvailable = 0;
+	numProcessed = 0;
+	batchProcessTime = 0;
+	
+	start = clock();
+		//run while 
+	while(currTime < endTime){
+		if(max(tuplesAvailable - numProcessed, 0)){
+			batchStart = clock();
+			//status = ecall_sjoin(global_eid, &custStore, &orderStore, cerealBox+numProcessed, max(min(batchSize, tuplesAvailable-numProcessed+1), 0), window, outBuffer);
+			//printf("%d\n", max(min(batchSize, tuplesAvailable-numProcessed+1), 0));
+			numJoined = NLJ(custPlace, orderPlace, cerealBox+numProcessed, max(min(batchSize, tuplesAvailable-numProcessed+1), 0), window, 0);
+			numProcessed += batchSize;
+			//printf("Did %d\n", numProcessed);
+			batchEnd = clock();
+	
+			batchProcessTime += print_time(batchStart, batchEnd, messageB, 0);
+		}else{
+			tuplesAvailable = get(currTime);	
+		
+		}
+		currTime = (int)time(NULL);
+	}
+	
+	end = clock();
+	
+	printf("The Number of joins: %d\n", numJoined);
+	print_time(start, end, message, 1);
+	
+	
+	//double time_elapsed = double(end - start) / double(CLOCKS_PER_SEC);
+	printf("The time elapsed for all batches is %.9f \n", batchProcessTime);
+	
+	printf("Freeing everything\n");
+	free(custs);
+	free(orders);
+	free(custPlace);
+	free(orderPlace);
+	for(i=0; i<total; i++){
+		free(cerealBox[i]);
+	}
+	free(cerealBox);
 	//printf("Printing Customer\n");
 	//print_storage(custStore);
-	/*printf("**********************************\n");
+	/*
 	printf("Printing Order\n");
 	print_storage(orderStore);
 	*/
-	
-    
-    //#####################################################
-    // Seal a string
-    //int ptr = 100;
-    /*char ptr[100] = "abcdef";
-    //memset(ptr, 0, 100);
-    size_t sealed_size = sizeof(sgx_sealed_data_t) + sizeof(char)*100;
-    uint8_t* sealed_data = (uint8_t*)malloc(sealed_size);
-    int i;
-	char unsealed[100];
-
-    sgx_status_t ecall_status;
-    status = seal(global_eid, &ecall_status,
-            (uint8_t*)ptr, 100*sizeof(char), //plain text and plaintext len???
-            (sgx_sealed_data_t*)sealed_data, sealed_size); //sealed data and sealed ??
-
-    if (!is_ecall_successful(status, "Sealing failed :(", ecall_status)) {
-        return 1;
-    }
-    
-    
-    printf("sealed_size = %lu\n", sealed_size);
-    for(i=0; i<sealed_size; i++){
-    	printf("%d ", sealed_data[i]);
-    }
-	printf("\n");
-   
-    status = unseal(global_eid, &ecall_status,
-            (sgx_sealed_data_t*)sealed_data, sealed_size,
-            (uint8_t*)unsealed, 100*sizeof(char));
-
-    if (!is_ecall_successful(status, "Unsealing failed :(", ecall_status)) {
-        return 1;
-    }
-
-    std::cout << "Seal round trip success! Receive back " << unsealed << std::endl;
-
-	printf("BUFFERLINE*********************************************\n");
-    status = seal(global_eid, &ecall_status,
-            (uint8_t*)ptr, 100*sizeof(char), //plain text and plaintext len???
-            (sgx_sealed_data_t*)sealed_data, sealed_size); //sealed data and sealed ??
-
-    if (!is_ecall_successful(status, "Sealing failed :(", ecall_status)) {
-        return 1;
-    }
-    
-    
-    printf("sealed_size = %lu\n", sealed_size);
-    for(i=0; i<sealed_size; i++){
-    	printf("%d ", sealed_data[i]);
-    }
-	printf("\n");
-   
-    status = unseal(global_eid, &ecall_status,
-            (sgx_sealed_data_t*)sealed_data, sealed_size,
-            (uint8_t*)unsealed, 100*sizeof(char));
-
-    if (!is_ecall_successful(status, "Unsealing failed :(", ecall_status)) {
-        return 1;
-    }
-
-    std::cout << "Seal round trip success! Receive back " << unsealed << std::endl;
-    */
-    
-	//#####################################################
-    
-    
-     /*
-    int id = 1;
-    char name[] = "prodName";
-    
-    Product* p = createProduct(id, name, 0);
-    
-    setGlobalID(global_eid);
-    
-    printProd(p);
-    
-    ecall_read_product(global_eid, p); 
-    
-    /*
-    Block* root = (Block*)malloc(sizeof(Block));
-    root->id = 5;
-    root->content = "root";
-    
-    Block* left = (Block*)malloc(sizeof(Block));
-    left->id = 6;
-    left->content = "adaf";
-    
-    Block* right = (Block*)malloc(sizeof(Block));
-    right->id = 7;
-    right->content = "adfa";
-    
-    root->left = left;
-    root->right = right;
-    
-    Block* leftleft = (Block*)malloc(sizeof(Block));
-    leftleft->id = 8;
-    leftleft->content = "leftleft";
-    
-    root->left->left = leftleft;
-    
-    printf("%d %s\n", root->id, root->content);
-    printf("%d %s\n", root->left->id, root->left->content);
-    
-    //ecall_print_block(global_eid, root);
-    */
-    
-
-    /*int i;    
-    Product** p_arr = genProducts(50);
-    Customer** c_arr = genCustomers(5);
-    
-    
-    for(i =0; i< 20; ++i){
-    	printProd(p_arr[i]);
-    }
- 	printf("==========\n");
-    for(i =0; i < 5 ; ++i){
-    	printCust(c_arr[i]);
-    }
-    
-    NLJ(p_arr, 50, c_arr, 5);
-    
-    
-    int retval;
-    
-    status = ecall_nlj(global_eid, &retval, p_arr, c_arr, 50, 5);
-    if(status != SGX_SUCCESS) {
-        std::cout <<  "Failed to join.\n" << std::endl;
-        return 1;
-    }
-    
-*/
-
 	
 	
 	//#####################################################
@@ -324,188 +406,4 @@ int main(int argc, char const *argv[]) {
 
     return 0;
 }
-    /*
-    
    
-    
-    //#####################################################
-    //Random number generation 
-    int ptr;
-    sgx_status_t status = generate_random_number(global_eid, &ptr);
-    std::cout << status << std::endl;
-    if (status != SGX_SUCCESS) {
-        std::cout << "noob" << std::endl;
-    }
-    printf("Random number: %d\n", ptr);
-	//#####################################################
-	   //#####################################################
-    // Seal a string
-    //int ptr = 100;
-    char ptr[100]; //"abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi1abcdefghi";
-    memset(ptr, 0, 100);
-    size_t sealed_size = sizeof(sgx_sealed_data_t) + sizeof(char)*100;
-    uint8_t* sealed_data = (uint8_t*)malloc(sealed_size);
-    int i;
-	char unsealed[100];
-
-    sgx_status_t ecall_status;
-    status = seal(global_eid, &ecall_status,
-            (uint8_t*)ptr, 100*sizeof(char), //plain text and plaintext len???
-            (sgx_sealed_data_t*)sealed_data, sealed_size); //sealed data and sealed ??
-
-    if (!is_ecall_successful(status, "Sealing failed :(", ecall_status)) {
-        return 1;
-    }
-    
-    
-    printf("sealed_size = %lu\n", sealed_size);
-    for(i=0; i<sealed_size; i++){
-    	printf("%d ", sealed_data[i]);
-    }
-	printf("\n");
-   
-    status = unseal(global_eid, &ecall_status,
-            (sgx_sealed_data_t*)sealed_data, sealed_size,
-            (uint8_t*)unsealed, 100*sizeof(char));
-
-    if (!is_ecall_successful(status, "Unsealing failed :(", ecall_status)) {
-        return 1;
-    }
-
-    std::cout << "Seal round trip success! Receive back " << unsealed << std::endl;
-
-	//#####################################################
-
-	//#####################################################
-    // Perform a simple addition in the enclave
-    int a = ptr;
-    int b = 100;
-    status = ecall_add(global_eid, &ptr, a, b);
-    if (status != SGX_SUCCESS) {
-        std::cout << "Enclave addition failed :(" << std::endl;
-        return 1;
-    }
-    std::cout << "Enclave addition success! " << a << " + " << b << " = " << ptr << std::endl;
-    //#####################################################
-
-	//#####################################################
-	//Perform simple multiplication in the enclave
-	
-	int x = 34;
-	int y = 2;
-	int retval;
-	status = ecall_multiply(global_eid, &retval, x, y);
-	
-	if (status != SGX_SUCCESS) {
-		std::cout << "Enclave multiplication failed :(" << std::endl;
-        return 1;
-	}	
-	
-	
-	
-	std::cout << "Enclave multiplication success! " << x << " * " << y << " = " << retval << std::endl;
-    //#####################################################
-	
-	
-	
-	printf("\n\nSome Buffer Space\n\n");
-	
-	//#####################################################
-	//Let's try to copy some array's into the enclave and 
-	// then do some generic operations on them through ocalls
-
-	//make int array
-	
-	int data[20];
-	size_t size = 20;
-	int i;
-	for(i = 0; i < size; ++i){
-		data[i] = i;
-	}
-	
-	//now we do some ecall to store this information into the enclave and let's just ocall print it
-	
-		//Let's store an int
-	status = ecall_store_int(global_eid, data[5]);
-	
-	if(status != SGX_SUCCESS){
-		return 1;
-	}
-	printf("\nSome Buffer Space\n");
-	status = ecall_store_int_arr(global_eid, data, size);
-	if(status != SGX_SUCCESS){
-		return 1;
-	}
-	
-	printf("\nSome Buffer Space\n");
-	status = ecall_mult_int(global_eid, 7);
-	if(status != SGX_SUCCESS){
-		return 1;
-	}
-	printf("\nSome Buffer Space\n");
-	//make something to hold data
-	int outHold[20];
-	
-	status = ecall_load_int_arr(global_eid, outHold, size);
-	if(status != SGX_SUCCESS){
-		return 1;
-	}
-	
-	for(i=0; i<size; ++i){
-		printf("outHold has %d\n", outHold[i]);
-	
-	}
-	
-	//#####################################################
-    // interact with external var
-	
-	int* numPTR = &num;
-
-	*numPTR = 5;
-		
-	printf("%d\n", *numPTR);
-	printf("%d\n", num);
-	status = enclave_main(global_eid, &retval, &num);
-	if(status != SGX_SUCCESS){
-		return 1;
-	}
-	printf("%d\n", *numPTR);
-    
-    num = 65;
-    printf("%d\n", num);
-    status = enclave_main(global_eid, &retval, &num);
-	if(status != SGX_SUCCESS){
-		return 1;
-	}
-    
-    printf("%d\n", *numPTR);
-    
-    
-    
-    //make an int array
-    int data[20];
-	size_t size = 20;
-	int i;
-	for(i = 0; i < size; ++i){
-		data[i] = i;
-		printf("%d\n", data[i]);
-	}
-	
-	
-	status = ecall_array_add_no_copy(global_eid, &retval, data, size, 6);
-    if(status != SGX_SUCCESS){
-		return 1;
-	}
-    
-    
-	for(i=0; i<size; ++i){
-		printf("%d\n", data[i]);
-	
-	}
-	
-    //#####################################################
-
-	status = enclave_fill_mem(global_eid);
-    if(status != SGX_SUCCESS){
-		return 1;
-	}*/
